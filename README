@@ -5,6 +5,7 @@ Wsgid is a mongrel2 (mongrel2.org) adapter for WSGI applications. With wsgid you
 
 It will provide a full daemon environment for applications, with an start/stop/reload facility.
 
+Important Note: This project does not yet have a usable version. It's being built from scratch. Stay tuned to this repository.
 
 https://github.com/daltonmatos/wsgid
 2010 - Dalton Barreto
