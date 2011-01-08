@@ -17,26 +17,14 @@ class CliTest(unittest.TestCase):
     # so the testes applicatins does not try to use them
     sys.argv[1:] = []
   
-  def test_uuid_is_None(self):
-    self.params['uuid'] = None
-    self.assertRaises(Exception, self.cli.validate_input_params, **self.params)
-  
   def test_uuid_is_empty(self):
     self.params['uuid'] = ''
-    self.assertRaises(Exception, self.cli.validate_input_params, **self.params)
-
-  def test_recv_is_None(self):
-    self.params['recv'] = ''
     self.assertRaises(Exception, self.cli.validate_input_params, **self.params)
 
   def test_recv_is_empty(self):
     self.params['recv'] = ''
     self.assertRaises(Exception, self.cli.validate_input_params, **self.params)
   
-  def test_send_is_None(self):
-    self.params['send'] = ''
-    self.assertRaises(Exception, self.cli.validate_input_params, **self.params)
-
   def test_send_is_empty(self):
     self.params['send'] = ''
     self.assertRaises(Exception, self.cli.validate_input_params, **self.params)
