@@ -5,7 +5,7 @@ from wsgid import __version__
 setup(
   name="wsgid",
   version=__version__,
-  url="https://github.com/daltonmatos/wsgi",
+  url="https://github.com/daltonmatos/wsgid",
   license="GPLv2",
   description="A complete WSGI environment for mongrel2 handlers",
   author="Dalton Barreto",
