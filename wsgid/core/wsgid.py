@@ -1,5 +1,6 @@
 #encoding: utf-8
 
+import urllib
 
 
 class Wsgid(object):
@@ -32,7 +33,8 @@ class Wsgid(object):
     self.environ['SCRIPT_NAME'] = json_headers['PATTERN'].rstrip('/')
     self.environ['QUERY_STRING'] = json_headers.get('QUERY', "")
 
-    scr_name = self.environ['SCRIPT_NAME']
-    self.environ['PATH_INFO'] = json_headers['PATH'][len(scr_name):]
+    script_name = self.environ['SCRIPT_NAME']
+    path_info = json_headers['PATH'][len(script_name):]
+    self.environ['PATH_INFO'] = urllib.unquote(path_info)
 
     return self.environ

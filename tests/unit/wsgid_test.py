@@ -37,6 +37,7 @@ class WsgidTest(unittest.TestCase):
     environ = self.wsgid._create_wsgi_environ(self.sample_headers)
     self.assertEquals("", environ['SCRIPT_NAME'])
 
+
   '''
    PATH_INFO comes from (URI - SCRIPT_NAME) or (PATH - SCRIPT_NAME)
   '''
@@ -51,6 +52,13 @@ class WsgidTest(unittest.TestCase):
     self.sample_headers['PATH'] = '/py'
     environ = self.wsgid._create_wsgi_environ(self.sample_headers)
     self.assertEquals("", environ['PATH_INFO'])
+
+
+  def test_environ_unquoted_path_info(self):
+    self.sample_headers['PATTERN'] = '/py/'
+    self.sample_headers['PATH'] = '/py/so%20me/special%3f/user%40path'
+    environ = self.wsgid._create_wsgi_environ(self.sample_headers)
+    self.assertEquals('/so me/special?/user@path', environ['PATH_INFO'])
 
   '''
    Generates de REQUEST_METHOD variable
