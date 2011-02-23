@@ -65,6 +65,12 @@ class WsgidTest(unittest.TestCase):
     environ = self.wsgid._create_wsgi_environ(self.sample_headers)
     self.assertEquals("a=1&b=4&d=4", environ['QUERY_STRING'])
 
+    #Not always we have a QUERY_STRING
+    del self.sample_headers['QUERY']
+    environ = self.wsgid._create_wsgi_environ(self.sample_headers)
+    self.assertEquals("", environ['QUERY_STRING'])
+
+
   '''
    Have to be calculated from len(body) ?
   '''

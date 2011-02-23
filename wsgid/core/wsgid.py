@@ -30,10 +30,9 @@ class Wsgid(object):
     self.environ['REQUEST_METHOD'] = json_headers['METHOD']
     self.environ['SERVER_PROTOCOL'] = json_headers['VERSION']
     self.environ['SCRIPT_NAME'] = json_headers['PATTERN'].rstrip('/')
-    self.environ['QUERY_STRING'] = json_headers['QUERY']
+    self.environ['QUERY_STRING'] = json_headers.get('QUERY', "")
 
     scr_name = self.environ['SCRIPT_NAME']
     self.environ['PATH_INFO'] = json_headers['PATH'][len(scr_name):]
-
 
     return self.environ
