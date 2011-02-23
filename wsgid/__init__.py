@@ -2,7 +2,8 @@
 
 __all__ = ['Cli']
 
-__version__ = "wsgid v0.1"
+__progname__ = "wsgid"
+__version__ = "v0.1"
 
 import sys
 from wsgid.options import parser

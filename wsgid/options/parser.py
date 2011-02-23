@@ -1,11 +1,14 @@
 #encoding: utf-8
 
 import optparse
-from wsgid import __version__
+from wsgid import __version__, __progname__
 
-optparser = optparse.OptionParser(prog='wsgid',\
+optparser = optparse.OptionParser(prog=__progname__,\
     description='A complete WSGI environment for mongrel2 handlers',\
     version="%s" % __version__)
+
+optparser.add_option('--app-path', help="Path to the WSGI application",\
+    action="store", dest="app_path")
 
 optparser.add_option('--uuid', help="Sets the server's uuid value",\
     action="store", dest="uuid")
