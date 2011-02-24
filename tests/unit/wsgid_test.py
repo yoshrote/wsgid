@@ -124,6 +124,19 @@ class WsgidTest(unittest.TestCase):
     self.assertTrue(environ.has_key('SERVER_PROTOCOL'))
     self.assertEquals('HTTP/1.1', environ['SERVER_PROTOCOL'])
 
+
+  '''
+   Non Standard headers (X-) are passed untouched
+  '''
+  def test_environ_non_standart_headers(self):
+    self.sample_headers['X-Some-Header'] = 'some-value'
+    self.sample_headers['x-other-header'] = 'other-value'
+
+    environ = self.wsgid._create_wsgi_environ(self.sample_headers)
+    self.assertEquals('some-value', environ['X-Some-Header'])
+    self.assertEquals('other-value', environ['x-other-header'])
+
+
   '''
    All headers (but HTTP common headers) must be HTTP_ suffixed
   '''
