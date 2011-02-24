@@ -15,7 +15,8 @@ class WsgidTest(unittest.TestCase):
           'PATTERN': '/root',
           'URI': '/more/path/',
           'PATH': '/more/path',
-          'QUERY': 'a=1&b=4&d=4'
+          'QUERY': 'a=1&b=4&d=4',
+          'host': 'localhost'
         }
 
   '''
@@ -78,6 +79,24 @@ class WsgidTest(unittest.TestCase):
     environ = self.wsgid._create_wsgi_environ(self.sample_headers)
     self.assertEquals("", environ['QUERY_STRING'])
 
+
+  def test_environ_server_port(self):
+    self.sample_headers['host'] = 'localhost:443'
+    environ = self.wsgid._create_wsgi_environ(self.sample_headers)
+    self.assertEquals('443', environ['SERVER_PORT'])
+
+    self.sample_headers['host'] = 'localhost'
+    environ = self.wsgid._create_wsgi_environ(self.sample_headers)
+    self.assertEquals('80', environ['SERVER_PORT'])
+
+  def test_environ_server_name(self):
+    self.sample_headers['host'] = 'localhost:8080'
+    environ = self.wsgid._create_wsgi_environ(self.sample_headers)
+    self.assertEquals('localhost', environ['SERVER_NAME'])
+
+    self.sample_headers['host'] = 'someserver'
+    environ = self.wsgid._create_wsgi_environ(self.sample_headers)
+    self.assertEquals('someserver', environ['SERVER_NAME'])
 
   '''
    Have to be calculated from len(body) ?

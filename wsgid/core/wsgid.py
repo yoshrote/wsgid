@@ -37,4 +37,13 @@ class Wsgid(object):
     path_info = json_headers['PATH'][len(script_name):]
     self.environ['PATH_INFO'] = urllib.unquote(path_info)
 
+    server_port = '80'
+    if ':' in json_headers['host']:
+      server_name, server_port = json_headers['host'].split(':')
+    else:
+      server_name = json_headers['host']
+
+    self.environ['SERVER_PORT'] = server_port
+    self.environ['SERVER_NAME'] = server_name
+
     return self.environ
