@@ -98,11 +98,23 @@ class WsgidTest(unittest.TestCase):
     environ = self.wsgid._create_wsgi_environ(self.sample_headers)
     self.assertEquals('someserver', environ['SERVER_NAME'])
 
-  '''
-   Have to be calculated from len(body) ?
-  '''
   def test_environ_content_type(self):
-    self.fail("Not Implemented")
+    self.sample_headers['content-type'] = 'application/xml'
+    environ = self.wsgid._create_wsgi_environ(self.sample_headers)
+    self.assertEquals('application/xml', environ['CONTENT_TYPE'])
+
+    del self.sample_headers['content-type']
+    environ = self.wsgid._create_wsgi_environ(self.sample_headers)
+    self.assertEquals('', environ['CONTENT_TYPE'])
+
+  def test_environ_content_length(self):
+    self.sample_headers['content-length'] = '42'
+    environ = self.wsgid._create_wsgi_environ(self.sample_headers)
+    self.assertEquals('42', environ['CONTENT_LENGTH'])
+
+    del self.sample_headers['content-length']
+    environ = self.wsgid._create_wsgi_environ(self.sample_headers)
+    self.assertEquals('', environ['CONTENT_LENGTH'])
 
   '''
    Comes from mongrel2 VERSION header
