@@ -16,24 +16,28 @@ class WsgidTest(unittest.TestCase):
           'URI': '/more/path/',
           'PATH': '/more/path',
           'QUERY': 'a=1&b=4&d=4',
-          'host': 'localhost'
+          'host': 'localhost',
+          'content-length': '42',
+          'content-type': 'text/plain'
         }
+  def tearDown(self):
+    self.sample_headers = {}
 
   '''
    Creates the SCRIPT_NAME header from the mongrel2 PATTERN header.
    SCRIPT_NAME should be the PATTERN without any regex parts.
   '''
-  def test_script_name_header(self):
-    # /py/ -> /py/
-    # /py/(.+) -> /py/
+  def test_script_name_header_simple_path(self):
     self.sample_headers['PATTERN'] = "/py"
     environ = self.wsgid._create_wsgi_environ(self.sample_headers)
     self.assertEquals("/py", environ['SCRIPT_NAME'])
 
+  def test_environ_script_name_header_more_comples_header(self):
     self.sample_headers['PATTERN'] = '/some/more/path/'
     environ = self.wsgid._create_wsgi_environ(self.sample_headers)
     self.assertEquals("/some/more/path", environ['SCRIPT_NAME'])
 
+  def test_environ_script_name_header_root(self):
     self.sample_headers['PATTERN'] = '/'
     environ = self.wsgid._create_wsgi_environ(self.sample_headers)
     self.assertEquals("", environ['SCRIPT_NAME'])
@@ -42,13 +46,14 @@ class WsgidTest(unittest.TestCase):
   '''
    PATH_INFO comes from (URI - SCRIPT_NAME) or (PATH - SCRIPT_NAME)
   '''
-  def test_eniron_path_info(self):
+  def test_environ_path_info(self):
 
     self.sample_headers['PATTERN'] = '/py'
     self.sample_headers['PATH'] = '/py/some/py/path'
     environ = self.wsgid._create_wsgi_environ(self.sample_headers)
     self.assertEquals("/some/py/path", environ['PATH_INFO'])
 
+  def test_environ_path_info_app_root(self):
     self.sample_headers['PATTERN'] = '/py'
     self.sample_headers['PATH'] = '/py'
     environ = self.wsgid._create_wsgi_environ(self.sample_headers)
@@ -74,6 +79,7 @@ class WsgidTest(unittest.TestCase):
     environ = self.wsgid._create_wsgi_environ(self.sample_headers)
     self.assertEquals("a=1&b=4&d=4", environ['QUERY_STRING'])
 
+  def test_environ_no_query_string(self):
     #Not always we have a QUERY_STRING
     del self.sample_headers['QUERY']
     environ = self.wsgid._create_wsgi_environ(self.sample_headers)
@@ -85,6 +91,7 @@ class WsgidTest(unittest.TestCase):
     environ = self.wsgid._create_wsgi_environ(self.sample_headers)
     self.assertEquals('443', environ['SERVER_PORT'])
 
+  def test_environ_server_port_default_port(self):
     self.sample_headers['host'] = 'localhost'
     environ = self.wsgid._create_wsgi_environ(self.sample_headers)
     self.assertEquals('80', environ['SERVER_PORT'])
@@ -94,6 +101,7 @@ class WsgidTest(unittest.TestCase):
     environ = self.wsgid._create_wsgi_environ(self.sample_headers)
     self.assertEquals('localhost', environ['SERVER_NAME'])
 
+  def test_environ_server_name_default_port(self):
     self.sample_headers['host'] = 'someserver'
     environ = self.wsgid._create_wsgi_environ(self.sample_headers)
     self.assertEquals('someserver', environ['SERVER_NAME'])
@@ -103,6 +111,7 @@ class WsgidTest(unittest.TestCase):
     environ = self.wsgid._create_wsgi_environ(self.sample_headers)
     self.assertEquals('application/xml', environ['CONTENT_TYPE'])
 
+  def test_environ_no_content_type(self):
     del self.sample_headers['content-type']
     environ = self.wsgid._create_wsgi_environ(self.sample_headers)
     self.assertEquals('', environ['CONTENT_TYPE'])
@@ -112,6 +121,7 @@ class WsgidTest(unittest.TestCase):
     environ = self.wsgid._create_wsgi_environ(self.sample_headers)
     self.assertEquals('42', environ['CONTENT_LENGTH'])
 
+  def test_environ_no_content_length(self):
     del self.sample_headers['content-length']
     environ = self.wsgid._create_wsgi_environ(self.sample_headers)
     self.assertEquals('', environ['CONTENT_LENGTH'])
@@ -136,13 +146,63 @@ class WsgidTest(unittest.TestCase):
     self.assertEquals('some-value', environ['X-Some-Header'])
     self.assertEquals('other-value', environ['x-other-header'])
 
+  def test_environ_http_host_header(self):
+    environ = self.wsgid._create_wsgi_environ(self.sample_headers)
+    self.assertEquals('localhost', environ['HTTP_HOST'])
 
   '''
-   All headers (but HTTP common headers) must be HTTP_ suffixed
+   All headers (but HTTP common headers and X- headers) must be HTTP_ suffixed
   '''
   def test_environ_other_headers(self):
-    self.fail("Not Implemented")
-  
+    self.sample_headers['my_header'] = 'some-value'
+    self.sample_headers['OTHER_HEADER'] = 'other-value'
+    self.sample_headers['X-Some-Header'] = 'x-header'
+    self.sample_headers['Accept'] = '*/*'
+    self.sample_headers['Referer'] = 'http://www.someserver.com'
+
+    environ = self.wsgid._create_wsgi_environ(self.sample_headers)
+    self.assertEquals('some-value', environ['HTTP_my_header'])
+    self.assertEquals('other-value', environ['HTTP_OTHER_HEADER'])
+    self.assertEquals('x-header', environ['X-Some-Header'])
+    self.assertEquals('*/*', environ['Accept'])
+    self.assertEquals('http://www.someserver.com', environ['Referer'])
+
+
+  '''
+   Test a complete request, with all typed of headers.
+  '''
+  def test_eviron_complete_request(self):
+    request = {
+          'METHOD': 'GET',
+          'VERSION': 'HTTP/1.1',
+          'PATTERN': '/py',
+          'URI': '/py/some/path',
+          'PATH': '/py/some/path',
+          'QUERY': 'a=1&b=4&d=4',
+          'host': 'localhost',
+          'Accept': '*/*',
+          'CUSTOM_HEADER': 'value',
+          'User-Agent': 'some user agent/1.0',
+          'content-length': '42',
+          'content-type': 'text/plain'
+        }
+
+    environ = self.wsgid._create_wsgi_environ(request)
+    self.assertEquals(17, len(environ))
+    self.assertEquals('GET', environ['REQUEST_METHOD'])
+    self.assertEquals('HTTP/1.1', environ['SERVER_PROTOCOL'])
+    self.assertEquals('/py', environ['SCRIPT_NAME'])
+    self.assertEquals('a=1&b=4&d=4', environ['QUERY_STRING'])
+    self.assertEquals('/some/path', environ['PATH_INFO'])
+    self.assertEquals('localhost', environ['SERVER_NAME'])
+    self.assertEquals('80', environ['SERVER_PORT'])
+    self.assertEquals('value', environ['HTTP_CUSTOM_HEADER'])
+    self.assertEquals('*/*', environ['Accept'])
+    self.assertEquals('some user agent/1.0', environ['User-Agent'])
+    self.assertEquals('42', environ['CONTENT_LENGTH'])
+    self.assertEquals('text/plain', environ['CONTENT_TYPE'])
+    self.assertEquals('localhost', environ['HTTP_HOST'])
+
   '''
    Some values are fixed:
     * wsgi.multithread = False

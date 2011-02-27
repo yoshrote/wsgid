@@ -8,6 +8,7 @@ __version__ = "v0.1"
 import sys
 from wsgid.options import parser
 from wsgid.core import Wsgid
+from wsgid.http import *
 
 class Cli(object):
   '''
