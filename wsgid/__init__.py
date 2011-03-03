@@ -8,7 +8,6 @@ __version__ = "v0.1"
 import sys
 from wsgid.options import parser
 from wsgid.core import Wsgid
-from wsgid.http import *
 
 class Cli(object):
   '''
@@ -30,7 +29,7 @@ class Cli(object):
     try:
       self.validate_input_params(app_path=options.app_path,\
           uuid=options.uuid, recv=options.recv, send=options.send)
-      app = Wsgid(options.app_path, options.recv, options.send)
+      app = Wsgid(options.app_path, options.uuid, options.recv, options.send)
       app.serve()
     except Exception, e:
       sys.stderr.write(str(e))
