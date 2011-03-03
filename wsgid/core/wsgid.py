@@ -2,12 +2,18 @@
 
 import urllib
 from ..http import HTTP_HEADERS
-
+import zmq
 
 class Wsgid(object):
   
-  def __init__(self, app_path = None, recv = None, send = None):
+  def __init__(self, app_path = None, recv_ident = None, recv = None, send = None):
     self.environ = {}
+    self.app_path = app_path
+    self.recv_ident = recv_ident
+    self.recv = recv
+    self.send = send
+
+    self.ctx = zmq.Context()
 
 
   '''
@@ -16,6 +22,33 @@ class Wsgid(object):
   def serve(self):
     pass
 
+
+  '''
+   Constructs a mongrel2 response message based on the
+   WSGI app response values.
+   @uuid, @conn_id comes from Wsgid itself
+   @headers, @body comes from the executed application
+
+   @body is the raw content of the response and not [body]
+   as returned by the WSGI app
+   @headers is a list of tuples
+  '''
+  def _reply(self, uuid, conn_id, status, headers, body):
+    RAW_HTTP = "HTTP/1.1 %(status)s\r\n%(headers)s\r\n%(body)s"
+    msg = "%s %d:%s, " % (uuid, len(conn_id), conn_id)
+    params = {'status': status, 'body': body}
+
+    if not headers:
+      headers = []
+
+    headers += [('Content-Length', len(body))]
+    raw_headers = ""
+    for h,v in headers:
+      raw_headers += "%s: %s\r\n" % (h,v)
+
+    params['headers'] = raw_headers
+
+    return msg + RAW_HTTP % params
 
   '''
    Creates a complete WSGI environ from the JSON encoded headers

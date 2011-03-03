@@ -3,7 +3,10 @@
 
 import unittest
 
+import zmq
 from wsgid.core import Wsgid
+from wsgid import test
+
 
 class WsgidTest(unittest.TestCase):
 
@@ -216,5 +219,27 @@ class WsgidTest(unittest.TestCase):
     self.assertEquals(True, environ['wsgi.multiprocess'])
     self.assertEquals(True, environ['wsgi.run_once'])
     self.assertEquals((1,0), environ['wsgi.version'])
-    
+
+
+class WsgidReplyTest(unittest.TestCase):
+
+
+  def setUp(self):
+    self.wsgid = Wsgid()
+    self.sample_uuid = 'bb3ce668-4528-11e0-94e3-001fe149503a'
+    self.sample_conn_id = '42'
+
+  def test_reply_no_headers(self):
+    m2msg = self.wsgid._reply(self.sample_uuid, self.sample_conn_id, '200 OK', None, 'Hello World\n')
+    resp = "%s 2:42, HTTP/1.1 200 OK\r\nContent-Length: 12\r\n\r\nHello World\n" % (self.sample_uuid)
+    self.assertEquals(resp, m2msg)
+
+  def test_reply_no_body(self):
+    self.fail("Not Implemented")
+
+  def test_reply_with_headers(self):
+    self.fail("Not Implemented")
+
+  def test_reply_with_body(self):
+    self.fail("Not Implemented")
 
