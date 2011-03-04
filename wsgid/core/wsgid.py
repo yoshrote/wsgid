@@ -33,13 +33,10 @@ class Wsgid(object):
    as returned by the WSGI app
    @headers is a list of tuples
   '''
-  def _reply(self, uuid, conn_id, status, headers, body):
+  def _reply(self, uuid, conn_id, status, headers = [], body = ''):
     RAW_HTTP = "HTTP/1.1 %(status)s\r\n%(headers)s\r\n%(body)s"
     msg = "%s %d:%s, " % (uuid, len(conn_id), conn_id)
     params = {'status': status, 'body': body}
-
-    if not headers:
-      headers = []
 
     headers += [('Content-Length', len(body))]
     raw_headers = ""
