@@ -243,9 +243,15 @@ X-Other-Header: Other-Value\r\n\
 Content-Length: 0\r\n\r\n" % (self.sample_uuid)
     self.assertEquals(resp, m2msg)
 
-  def test_reply_with_headers(self):
-    self.fail("Not Implemented")
+  def test_reply_with_body_andheaders(self):
+    headers = [('Header', 'Value'), ('X-Other-Header', 'Other-Value')]
+    body = "Hello World\n"
+    m2msg = self.wsgid._reply(self.sample_uuid, self.sample_conn_id, '200 OK', headers=headers, body=body)
+    resp = "%s 2:42, HTTP/1.1 200 OK\r\n\
+Header: Value\r\n\
+X-Other-Header: Other-Value\r\n\
+Content-Length: 12\r\n\r\n\
+Hello World\n" % (self.sample_uuid)
+    self.assertEquals(resp, m2msg)
 
-  def test_reply_with_body(self):
-    self.fail("Not Implemented")
 
