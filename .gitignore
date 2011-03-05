@@ -5,6 +5,8 @@
 #Backups
 *~
 
+tests/m2env/logs/
+
 # Packages
 *.egg
 *.egg-info
