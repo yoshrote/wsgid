@@ -11,7 +11,7 @@ setup(
   author="Dalton Barreto",
   author_email="daltonmatos@gmail.com",
   long_description=file('README').read(),
-  packages=['wsgid', 'wsgid/options', 'wsgid/core'],
+  packages=['wsgid', 'wsgid/options', 'wsgid/core', 'wsgid.http'],
   scripts=['scripts/wsgid'],
   classifiers = [
     "License :: OSI Approved :: GNU General Public License (GPL)",
