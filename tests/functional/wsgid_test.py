@@ -17,10 +17,12 @@ class WsgidServeTest(unittest.TestCase):
       start_response('200 OK', [('Some-Header', 'Some-Value')])
       return ['Body content']
     pid = self._run_wsgid(app)
-    r = urllib2.urlopen('http://127.0.0.1:8888/py/abc/')
-    body = r.read()
-    self._kill_wsgid(pid)
-    self.assertEquals(body, 'Body content')
+    try:
+      r = urllib2.urlopen('http://127.0.0.1:8888/py/abc/')
+      body = r.read()
+      self.assertEquals(body, 'Body content')
+    finally:
+      self._kill_wsgid(pid)
 
     
   '''
@@ -30,13 +32,11 @@ class WsgidServeTest(unittest.TestCase):
   def test_app_return_body_with_more_than_one_item(self):
     def app(env, start_response):
       write = start_response('200 OK', [])
-      write('One Line\n')
-      write('Two Lines\n')
       return ['More Lines\n', 'And more...\n']
     pid = self._run_wsgid(app)
     try:
       r = urllib2.urlopen('http://127.0.0.1:8888/py/abc/')
-      self.assertEquals('One Line\nTwo Lines\nMore Lines\nAnd more...\n', r.read())
+      self.assertEquals('More Lines\nAnd more...\n', r.read())
     finally:
       self._kill_wsgid(pid)
 
@@ -53,18 +53,25 @@ class WsgidServeTest(unittest.TestCase):
     finally:
       self._kill_wsgid(pid)
 
+  '''
+    Instead of returnin a list, a app can return an object that is iterable
+  '''
+  def test_app_return_an_iterable(self):
+    def app(environ, start_response):
+      class Body(object):
+        def __init__(self, parts):
+          self.parts = parts
+        def __iter__(self):
+          for a in self.parts:
+            yield a
 
-  
-  def test_app_uses_write_callable_and_return_body(self):
-    def app(env, start_response):
-      write = start_response('200 OK', [])
-      write('Line1\n')
-      write('Line2\n')
-      return ['Line3\n']
+      start_response('200 OK', [])
+      return Body(['Line One\n', 'Line Two\n'])
+
     pid = self._run_wsgid(app)
     try:
       r = urllib2.urlopen('http://127.0.0.1:8888/py/abc/')
-      self.assertEquals('Line1\nLine2\nLine3\n', r.read())
+      self.assertEquals('Line One\nLine Two\n', r.read())
     finally:
       self._kill_wsgid(pid)
 

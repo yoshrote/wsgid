@@ -36,22 +36,25 @@ class Wsgid(object):
       server_id = m2message.server_id
       client_id = m2message.client_id
       try:
-        body = self.app(environ, start_response)
-        if not body:
-          body = ''
+        body = ''
+        response = self.app(environ, start_response)
 
-        if isinstance(body, list):
-          body = "".join(body)
-
-        body = start_response.body + body
+        if start_response.body_written:
+          body = start_response.body
+        else:
+          for data in response:
+            body += data
 
         status = start_response.status
         headers = start_response.headers
-
-        send_sock.send(self._reply(server_id, client_id, status, headers, body))
+        send_sock.send(str(self._reply(server_id, client_id, status, headers, body)))
       except Exception, e:
         # Internal Server Error
+        print e
         send_sock.send(self._reply(server_id, client_id, '500 Internal Server Error', headers=[]))
+      finally:
+        if hasattr(response, 'close'):
+          response.close()
 
 
   '''
@@ -75,7 +78,6 @@ class Wsgid(object):
       raw_headers += "%s: %s\r\n" % (h,v)
 
     params['headers'] = raw_headers
-
     return msg + RAW_HTTP % params
 
   '''
