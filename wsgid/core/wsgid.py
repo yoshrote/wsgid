@@ -50,7 +50,6 @@ class Wsgid(object):
         send_sock.send(str(self._reply(server_id, client_id, status, headers, body)))
       except Exception, e:
         # Internal Server Error
-        print e
         send_sock.send(self._reply(server_id, client_id, '500 Internal Server Error', headers=[]))
       finally:
         if hasattr(response, 'close'):
