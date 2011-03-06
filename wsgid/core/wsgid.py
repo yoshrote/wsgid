@@ -2,25 +2,56 @@
 
 import urllib
 from ..http import HTTP_HEADERS
+from ..core import Message, StartResponse
 import zmq
+
 
 class Wsgid(object):
   
-  def __init__(self, app_path = None, recv_ident = None, recv = None, send = None):
+  def __init__(self, app = None, recv_ident = None, recv = None, send = None):
     self.environ = {}
-    self.app_path = app_path
+    self.app = app
     self.recv_ident = recv_ident
     self.recv = recv
     self.send = send
 
     self.ctx = zmq.Context()
 
-
   '''
    Start serving requests.
   '''
   def serve(self):
-    pass
+    recv_sock = self.ctx.socket(zmq.PULL)
+    recv_sock.connect(self.recv)
+    recv_sock.setsockopt(zmq.IDENTITY, self.recv_ident)
+
+    send_sock = self.ctx.socket(zmq.PUB)
+    send_sock.connect(self.send)
+
+    while True:
+      m2message = Message(recv_sock.recv())
+      environ = self._create_wsgi_environ(m2message.headers)
+      start_response = StartResponse()
+
+      server_id = m2message.server_id
+      client_id = m2message.client_id
+      try:
+        body = self.app(environ, start_response)
+        if not body:
+          body = ''
+
+        if isinstance(body, list):
+          body = "".join(body)
+
+        body = start_response.body + body
+
+        status = start_response.status
+        headers = start_response.headers
+
+        send_sock.send(self._reply(server_id, client_id, status, headers, body))
+      except Exception, e:
+        # Internal Server Error
+        send_sock.send(self._reply(server_id, client_id, '500 Internal Server Error', headers=[]))
 
 
   '''
@@ -93,5 +124,4 @@ class Wsgid(object):
         self.environ['HTTP_%s' % header] = value
 
     return self.environ
-
 
