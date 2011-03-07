@@ -4,7 +4,7 @@ import urllib
 from ..http import HTTP_HEADERS
 from ..core import Message, StartResponse
 import zmq
-
+from StringIO import StringIO
 
 class Wsgid(object):
   
@@ -30,11 +30,13 @@ class Wsgid(object):
 
     while True:
       m2message = Message(recv_sock.recv())
-      environ = self._create_wsgi_environ(m2message.headers)
+      print "received...", m2message.headers, m2message.body
+      environ = self._create_wsgi_environ(m2message.headers, m2message.body)
       start_response = StartResponse()
 
       server_id = m2message.server_id
       client_id = m2message.client_id
+      response = None
       try:
         body = ''
         response = self.app(environ, start_response)
@@ -84,7 +86,7 @@ class Wsgid(object):
    reveived from mongrel2.
    @json_headers should be an already parsed JSON string
   '''
-  def _create_wsgi_environ(self, json_headers):
+  def _create_wsgi_environ(self, json_headers, body=None):
     #Not needed
     json_headers.pop('URI', None)
     
@@ -93,6 +95,9 @@ class Wsgid(object):
     self.environ['wsgi.multiprocess'] = True
     self.environ['wsgi.run_once'] = True
     self.environ['wsgi.version'] = (1,0)
+
+    if body:
+      self.environ['wsgi.input'] = StringIO(body)
 
     self.environ['REQUEST_METHOD'] = json_headers.pop('METHOD')
     self.environ['SERVER_PROTOCOL'] = json_headers.pop('VERSION')

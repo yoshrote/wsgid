@@ -75,6 +75,22 @@ class WsgidServeTest(unittest.TestCase):
     finally:
       self._kill_wsgid(pid)
 
+  '''
+   A Simple POST that do not use mongrel2's async upload
+  '''
+  def test_app_receives_a_post_request(self):
+    def app(environ, start_response):
+      start_response('200 OK', [])
+      if environ['REQUEST_METHOD'] == 'POST':
+        return [environ['wsgi.input'].read()]
+
+    pid = self._run_wsgid(app)
+    try:
+      r = urllib2.urlopen('http://127.0.0.1:8888/py/post', data='Some post data')
+      self.assertEquals('Some post data', r.read())
+    finally:
+      self._kill_wsgid(pid)
+
 
   def _run_wsgid(self, app):
     def _serve(app):
