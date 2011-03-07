@@ -30,7 +30,10 @@ class Wsgid(object):
 
     while True:
       m2message = Message(recv_sock.recv())
-      print "received...", m2message.headers, m2message.body
+
+      if m2message.is_disconnect():
+        continue
+
       environ = self._create_wsgi_environ(m2message.headers, m2message.body)
       start_response = StartResponse()
 

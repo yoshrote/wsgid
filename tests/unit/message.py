@@ -74,3 +74,13 @@ class PaserTest(unittest.TestCase):
     
     self.assertEqual(body, parsed_message.body)
 
+  def test_message_is_disconnect(self):
+    msg = "uuid 1 @* %s"
+    header = json.dumps({'METHOD': 'JSON'})
+    body = json.dumps({'type': 'disconnect'})
+    netstring = "%d:%s,%d:%s," % (len(header), header, len(body), body)
+    parsed = Message(msg % netstring)
+    self.assertTrue(parsed.is_disconnect())
+
+
+

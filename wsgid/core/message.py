@@ -23,3 +23,7 @@ class Message(object):
     rest_with_body = rest[int(len_headers)+1:]
     len_body , rest = rest_with_body.split(':', 1)
     self.body = rest[:int(len_body)]
+
+
+  def is_disconnect(self):
+    return self.path == '@*' and self.headers['METHOD'] == 'JSON'
