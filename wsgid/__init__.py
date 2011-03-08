@@ -8,6 +8,9 @@ __version__ = "v0.1"
 import sys
 from wsgid.options import parser
 from wsgid.core import Wsgid
+from wsgid.loaders import load_app
+
+import plugnplay
 
 class Cli(object):
   '''
@@ -29,8 +32,16 @@ class Cli(object):
     try:
       self.validate_input_params(app_path=options.app_path,\
           uuid=options.uuid, recv=options.recv, send=options.send)
-      app = Wsgid(options.app_path, options.uuid, options.recv, options.send)
-      app.serve()
+
+      if options.loader_dir:
+        plugnplay.set_plugin_dirs(*options.loader_dir)
+        plugnplay.load_plugins()
+
+      wsgi_app = load_app(options.app_path, options.wsgi_app_full_name)
+      wsgid = Wsgid(wsgi_app, options.uuid, options.recv, options.send)
+      wsgid.serve()
     except Exception, e:
-      sys.stderr.write(str(e))
+      import traceback
+      exc_info = sys.exc_info()
+      sys.stderr.write("".join(traceback.format_exception(exc_info[0], exc_info[1], exc_info[2])))
       sys.exit(1)

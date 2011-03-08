@@ -10,6 +10,12 @@ optparser = optparse.OptionParser(prog=__progname__,\
 optparser.add_option('--app-path', help="Path to the WSGI application",\
     action="store", dest="app_path")
 
+optparser.add_option('--wsgi-app', help="Full qualified name for the WSGI application object",\
+    action="store", dest="wsgi_app_full_name")
+
+optparser.add_option('--loader-dir', help="Aditional dir for custom Application Loaders",\
+    action="append", dest="loader_dir")
+
 optparser.add_option('--uuid', help="Sets the server's uuid value",\
     action="store", dest="uuid")
 
