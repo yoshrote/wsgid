@@ -31,7 +31,9 @@ def load_app(app_path, wsgi_app_full_name):
   for loader in app_loaders:
     if loader.can_load(absolute_path):
       return loader.load_app(absolute_path, wsgi_app_full_name)
-  raise Exception("No Loader found for app %s\n" % app_path)
+  if wsgi_app_full_name:
+    return import_object(wsgi_app_full_name)
+  raise Exception("No Loader found for app %s and no --wsgi-app option found\n" % app_path)
 
 
 '''
