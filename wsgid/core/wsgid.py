@@ -98,6 +98,7 @@ class Wsgid(object):
     self.environ['wsgi.multiprocess'] = True
     self.environ['wsgi.run_once'] = True
     self.environ['wsgi.version'] = (1,0)
+    self.environ['wsgi.url_scheme'] = "http"
 
     if body:
       self.environ['wsgi.input'] = StringIO(body)
