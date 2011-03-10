@@ -1,10 +1,9 @@
 # encoding: utf-8
 from setuptools import setup
-from wsgid import __version__, __progname__
 
 setup(
-  name=__progname__,
-  version=__version__,
+  name='wsgid',
+  version='0.1',
   url="https://github.com/daltonmatos/wsgid",
   license="GPLv2",
   description="A complete WSGI environment for mongrel2 handlers",
@@ -13,6 +12,7 @@ setup(
   long_description=file('README').read(),
   packages=['wsgid', 'wsgid/options', 'wsgid/core', 'wsgid.http', 'wsgid.loaders'],
   scripts=['scripts/wsgid'],
+  install_requires = ['plugnplay'],
   classifiers = [
     "License :: OSI Approved :: GNU General Public License (GPL)",
     "Operating System :: OS Independent",
