@@ -1,9 +1,10 @@
 #encoding: utf-8
 
-from plugnplay import Interface, Plugin
+import plugnplay
 import os
+from ..core import Plugin
 
-class IAppLoader(Interface):
+class IAppLoader(plugnplay.Interface):
 
   '''
     Return True/False if a custom load is able to load
@@ -20,8 +21,6 @@ class IAppLoader(Interface):
   def load_app(self, app_path, app_full_name):
     pass
 
-
-AppLoader = Plugin
 
 def load_app(app_path, wsgi_app_full_name):
   absolute_path = os.path.abspath(os.path.expanduser(app_path))
@@ -49,7 +48,7 @@ def import_object(full_object_name):
 
 # Loaders implementation
 
-class PyRoutesLoader(AppLoader):
+class PyRoutesLoader(Plugin):
   implements = [IAppLoader]
 
   def can_load(self, app_path):

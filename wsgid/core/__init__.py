@@ -1,6 +1,11 @@
 #encoding: utf-8
 
-__all__ = ['StartResponse', 'StartResponseCalledTwice']
+__all__ = ['StartResponse', 'StartResponseCalledTwice', 'Plugin']
+
+
+import plugnplay
+
+Plugin = plugnplay.Plugin
 
 class StartResponse(object):
 
