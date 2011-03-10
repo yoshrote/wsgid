@@ -1,9 +1,10 @@
 # encoding: utf-8
 from setuptools import setup
+from wsgid import __progname__, __version__
 
 setup(
-  name='wsgid',
-  version='0.1',
+  name=__progname__,
+  version=__version__,
   url="https://github.com/daltonmatos/wsgid",
   license="GPLv2",
   description="A complete WSGI environment for mongrel2 handlers",
