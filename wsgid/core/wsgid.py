@@ -105,6 +105,9 @@ class Wsgid(object):
 
     if body:
       self.environ['wsgi.input'] = StringIO(body)
+    else:
+      self.environ['wsgi.input'] = StringIO('')
+
 
     self.environ['REQUEST_METHOD'] = json_headers.pop('METHOD')
     self.environ['SERVER_PROTOCOL'] = json_headers.pop('VERSION')
@@ -113,7 +116,7 @@ class Wsgid(object):
 
     script_name = self.environ['SCRIPT_NAME']
     path_info = json_headers.pop('PATH')[len(script_name):]
-    self.environ['PATH_INFO'] = urllib.unquote(path_info)
+    self.environ['PATH_INFO'] = str(urllib.unquote(path_info))
 
     server_port = '80'
     host_header = json_headers.pop('host')

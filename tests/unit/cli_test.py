@@ -4,7 +4,7 @@ import sys
 
 import unittest
 import ludibrio
-from wsgid import Cli
+from wsgid.core.cli import Cli
 
 class CliTest(unittest.TestCase):
 

@@ -51,5 +51,6 @@ HTTP_HEADERS = (
       'vary',
       'via',
       'warning',
-      'www-authenticate'
+      'www-authenticate',
+      'cookie'
     )
