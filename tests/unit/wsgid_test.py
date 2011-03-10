@@ -191,7 +191,7 @@ class WsgidTest(unittest.TestCase):
         }
 
     environ = self.wsgid._create_wsgi_environ(request)
-    self.assertEquals(19, len(environ))
+    self.assertEquals(21, len(environ))
     self.assertEquals('GET', environ['REQUEST_METHOD'])
     self.assertEquals('HTTP/1.1', environ['SERVER_PROTOCOL'])
     self.assertEquals('/py', environ['SCRIPT_NAME'])
@@ -203,7 +203,9 @@ class WsgidTest(unittest.TestCase):
     self.assertEquals('*/*', environ['Accept'])
     self.assertEquals('some user agent/1.0', environ['User-Agent'])
     self.assertEquals('42', environ['CONTENT_LENGTH'])
+    self.assertEquals('42', environ['content-length'])
     self.assertEquals('text/plain', environ['CONTENT_TYPE'])
+    self.assertEquals('text/plain', environ['content-type'])
     self.assertEquals('localhost', environ['HTTP_HOST'])
 
   '''

@@ -129,15 +129,19 @@ class Wsgid(object):
     self.environ['SERVER_PORT'] = server_port
     self.environ['SERVER_NAME'] = server_name
     
-    self.environ['CONTENT_TYPE'] = json_headers.pop('content-type', '')
-    self.environ['CONTENT_LENGTH'] = json_headers.pop('content-length', '')
+    self.environ['CONTENT_TYPE'] = str(json_headers.pop('content-type', ''))
+    self.environ['content-type'] = self.environ['CONTENT_TYPE']
+    
+    self.environ['CONTENT_LENGTH'] = str(json_headers.pop('content-length', ''))
+    self.environ['content-length'] = self.environ['CONTENT_LENGTH']
+
 
     #Pass the other headers
     for (header, value) in json_headers.iteritems():
       if header[0] in ('X', 'x') or header.lower() in HTTP_HEADERS:
-        self.environ[header] = value
+        self.environ[header] = str(value)
       else:
-        self.environ['HTTP_%s' % header] = value
+        self.environ['HTTP_%s' % header] = str(value)
 
     return self.environ
 
