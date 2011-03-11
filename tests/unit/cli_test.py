@@ -14,7 +14,7 @@ class CliTest(unittest.TestCase):
         'recv': 'tcp://127.0.0.1:8888',\
         'send': 'tcp://127.0.0.1:8889'}
     # As we are dealing with a command line test, we have do clean the passed arguments
-    # so the testes applicatins does not try to use them
+    # so the tested applications does not try to use them
     sys.argv[1:] = []
   
   def test_uuid_is_empty(self):
@@ -27,6 +27,13 @@ class CliTest(unittest.TestCase):
   
   def test_send_is_empty(self):
     self.params['send'] = ''
+    self.assertRaises(Exception, self.cli.validate_input_params, **self.params)
+
+  '''
+   --app-path is not mandatory when --wsgi-app is passed
+  '''
+  def test_app_path_not_mandatory(self):
+    self.params['wsgi_app'] = 'my.package.application'
     self.assertRaises(Exception, self.cli.validate_input_params, **self.params)
 
   def test_run_prints_on_stderr(self):

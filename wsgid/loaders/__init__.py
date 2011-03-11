@@ -3,6 +3,7 @@
 import plugnplay
 import os
 from ..core import Plugin
+import sys
 
 class IAppLoader(plugnplay.Interface):
 
@@ -23,15 +24,19 @@ class IAppLoader(plugnplay.Interface):
 
 
 def load_app(app_path, wsgi_app_full_name):
-  absolute_path = os.path.abspath(os.path.expanduser(app_path))
-  import sys
-  sys.path.append(absolute_path)
+
+  if app_path:
+    absolute_path = os.path.abspath(os.path.expanduser(app_path))
+    sys.path.append(absolute_path)
+
+  if wsgi_app_full_name:
+    return import_object(wsgi_app_full_name)
+
   app_loaders = IAppLoader.implementors()
   for loader in app_loaders:
     if loader.can_load(absolute_path):
       return loader.load_app(absolute_path, wsgi_app_full_name)
-  if wsgi_app_full_name:
-    return import_object(wsgi_app_full_name)
+
   raise Exception("No Loader found for app %s and no --wsgi-app option found\n" % app_path)
 
 
