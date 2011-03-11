@@ -33,6 +33,7 @@ HTTP_HEADERS = (
       'if-none-match',
       'if-range',
       'if-unmodified-since',
+      'keep-alive',
       'last-modified',
       'location',
       'max-forwards',
