@@ -1,0 +1,79 @@
+wsgid
+March 2011
+Dalton Barreto
+
+
+%txt2tags source for generating wsgid man page
+%!postproc(man): "^(\.TH.*) 1 "  "\1 8 "
+
+
+= NAME =
+wsgid - A WGSI gateway for mongrel2
+
+= SYNOPIS =
+wsgid [OPTIONS]
+
+= DESCRIPTION =
+wsgid is a mongrel2 WSGI gateway. With wsgid you will be able to run your WSGI apps as unix daemons. You can have more than one instance of wsgid running the same application, the requests will be distributed among all wsgid processes in a round-robin policy.
+
+= OPTIONS =
+: **--version**
+show program's version number and exit 
+:  **-h**, **--help**
+show this help message and exit
+:  **--app-path**
+Path to the WSGI application. This should be the path where the code of your application is located. If the app is installed system wide, you don't need this.
+
+This path will be added to sys.path so any module below this hirearchy can be imported with a simple //import <modulename>//
+
+The directory that contains your application must obey some rules, please see APP Format section of this manual.
+:  **--wsgi-app**
+Full qualified name for the WSGI application object. This options is used in two main ocasions. One: When wsgid cannot load your app automatically just by looking at **--app-path**. Two: When yout app is installed system wide. Supose you have inside in your app an package name //web//, and in this pachage you have a module names //frontends//. Supose frontends/wsgi.py is the module that defines the WSGI application object, as specified by PEP-333.
+```
+myapp/
+  __init__.py
+  mdolue1.py
+  module2.py
+  web/
+    __init__.py
+    frontends/
+      __init__.py
+      wsgi.py
+```
+In this example you would call wsgid with **--wsgi-app=myapp.web.frontends.wsgi.application**
+
+The WSGI application object does not necessarily have to be named //application//. So if your app defines an object named //wsgi_entry_point//, no problem just pass to wsgid **--wsgi-app=myapp.web.frontends.wsgi.wsgi_entry_point**
+:  **--loader-dir=LOADER_DIR**
+If wsgid can not auto-load your app you can write your own loader and point its locations to wsgid with this option. This path is just an folder with some .py files. wsgid will try to load all .py files searching for custom application loaders. The first loader that reports the ability to load the given application will be used
+:  **--uuid=UUID**
+
+:  **--recv=RECV**
+TCP socket used to receive data from mongrel2. This is the same value that is in the //send_spec// of //handler// table of mongrel2 config database. By passing this option to wsgid your application will respond to requests for any mongrel2's routes associated with this socket.
+
+The format of //RECV// can be any format accpeted by zeromq
+:  **--send=SEND**
+TCP socket used to return data to mongrel2. This is the same value that is in the //recv_spec// of //handler// table of mongrel2 config database. This value must belong to the same registry from where you got your **--recv** socket.
+
+The format of //SEND// can be any format accpeted by zeromq
+:   **--no-dameon**
+Used mainly for debug purposes. When this option is passed wsdig will not fork to background and will write all logs to stderr.
+:   **--debug**
+Runs in debug mode. The logs will be more verbose with this option turned on.
+
+= APPLICATION PATH STRUCTURE =
+Path
+
+= PLUGABLE APPLICATION LOADERS =
+
+= AUTHORS =
+wsgid was written by Dalton Barreto <daltonmatos@gmail.com>
+= SEE ALSO =
+: **wsgid website**
+wsgid.com
+: **PEP-333 - Python Web Server Gateway Interface v1.0**
+http://www.python.org/dev/peps/pep-0333
+: **zeromq**
+http://zeromq.org
+
+
+
