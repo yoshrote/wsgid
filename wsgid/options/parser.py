@@ -16,6 +16,9 @@ optparser.add_option('--wsgi-app', help="Full qualified name for the WSGI applic
 optparser.add_option('--loader-dir', help="Aditional dir for custom Application Loaders",\
     action="append", dest="loader_dir")
 
+optparser.add_option('--debug', help="Runs wsgid in debug mode. Lots of logging.",\
+    action="store_true", dest="debug")
+
 optparser.add_option('--uuid', help="Sets the server's uuid value",\
     action="store", dest="uuid")
 

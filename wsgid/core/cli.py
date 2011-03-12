@@ -1,6 +1,8 @@
 #encoding: utf-8
 
 import sys
+import logging
+
 from ..options import parser
 from wsgid import Wsgid
 from ..loaders import load_app
@@ -29,15 +31,31 @@ class Cli(object):
           uuid=options.uuid, recv=options.recv, send=options.send,\
           wsgi_app=options.wsgi_app)
 
+      self._set_loggers(options)
+
       if options.loader_dir:
         plugnplay.set_plugin_dirs(*options.loader_dir)
         plugnplay.load_plugins()
 
       wsgi_app = load_app(options.app_path, options.wsgi_app)
       wsgid = Wsgid(wsgi_app, options.uuid, options.recv, options.send)
+      wsgid.log = logging.getLogger('wsgid')
       wsgid.serve()
     except Exception, e:
-      import traceback
-      exc_info = sys.exc_info()
-      sys.stderr.write("".join(traceback.format_exception(exc_info[0], exc_info[1], exc_info[2])))
+      self.log.exception(e)
       sys.exit(1)
+
+  def _set_loggers(self, options):
+    level = logging.INFO if not options.debug else logging.DEBUG
+    print options.debug
+
+    logger = logging.getLogger('wsgid')
+    logger.setLevel(level)
+    console = logging.StreamHandler()
+    console.setLevel(level)
+
+    formatter = logging.Formatter("%(asctime)s - %(name)s [pid=%(process)d] - %(levelname)s - %(message)s")
+    console.setFormatter(formatter)
+
+    logger.addHandler(console)
+    self.log = logger

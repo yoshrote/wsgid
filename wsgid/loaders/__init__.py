@@ -4,6 +4,9 @@ import plugnplay
 import os
 from ..core import Plugin
 import sys
+import logging
+
+log = logging.getLogger('wsgid')
 
 class IAppLoader(plugnplay.Interface):
 
@@ -27,14 +30,17 @@ def load_app(app_path, wsgi_app_full_name):
 
   if app_path:
     absolute_path = os.path.abspath(os.path.expanduser(app_path))
+    log.info("Adding %s to sys.path" % absolute_path)
     sys.path.append(absolute_path)
 
   if wsgi_app_full_name:
+    log.info("Loading WSGI application object: %s" % wsgi_app_full_name)
     return import_object(wsgi_app_full_name)
 
   app_loaders = IAppLoader.implementors()
   for loader in app_loaders:
     if loader.can_load(absolute_path):
+      log.info("Using AppLoader: %s" % loader.__class__.__name__)
       return loader.load_app(absolute_path, wsgi_app_full_name)
 
   raise Exception("No Loader found for app %s and no --wsgi-app option found\n" % app_path)
@@ -74,3 +80,4 @@ class PyRoutesLoader(Plugin):
     import pyroutes
     return pyroutes.application
 
+import djangoloader

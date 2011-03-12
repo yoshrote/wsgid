@@ -36,17 +36,3 @@ class CliTest(unittest.TestCase):
     self.params['wsgi_app'] = 'my.package.application'
     self.assertRaises(Exception, self.cli.validate_input_params, **self.params)
 
-  def test_run_prints_on_stderr(self):
-    with ludibrio.Mock() as exit:
-      from sys import exit
-      exit(1)
-
-    with ludibrio.Mock() as stderr:
-      from sys import stderr
-      stderr.write(ludibrio.any())
-
-    self.cli.run()
-    #Check that we print messages on stderr
-    stderr.validate()
-    #Check that we sys.exit(1) on any errors
-    exit.validate()

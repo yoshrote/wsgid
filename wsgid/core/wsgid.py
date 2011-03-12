@@ -24,14 +24,18 @@ class Wsgid(object):
     recv_sock = self.ctx.socket(zmq.PULL)
     recv_sock.connect(self.recv)
     recv_sock.setsockopt(zmq.IDENTITY, self.recv_ident)
+    self.log.info("Using PULL socket %s with IDENTITY %s" % (self.recv, self.recv_ident))
 
     send_sock = self.ctx.socket(zmq.PUB)
     send_sock.connect(self.send)
+    self.log.info("Using PUB socket %s with IDENTITY %s" % (self.send, ''))
 
+    self.log.info("All set, ready to serve requests...")
     while True:
       m2message = Message(recv_sock.recv())
 
       if m2message.is_disconnect():
+        self.log.debug("Disconnect message received, id=%s" % m2message.client_id)
         continue
 
       environ = self._create_wsgi_environ(m2message.headers, m2message.body)
@@ -56,9 +60,7 @@ class Wsgid(object):
       except Exception, e:
         # Internal Server Error
         send_sock.send(self._reply(server_id, client_id, '500 Internal Server Error', headers=[]))
-        import sys, traceback
-        exc_info = sys.exc_info()
-        sys.stderr.write("".join(traceback.format_exception(exc_info[0], exc_info[1], exc_info[2])))
+        self.log.exception(e)
       finally:
         if hasattr(response, 'close'):
           response.close()

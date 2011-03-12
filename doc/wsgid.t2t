@@ -63,10 +63,13 @@ Runs in debug mode. The logs will be more verbose with this option turned on.
 = APPLICATION PATH STRUCTURE =
 Path
 
+
 = PLUGABLE APPLICATION LOADERS =
+
 
 = AUTHORS =
 wsgid was written by Dalton Barreto <daltonmatos@gmail.com>
+
 = SEE ALSO =
 : **wsgid website**
 wsgid.com
