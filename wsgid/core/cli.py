@@ -26,6 +26,7 @@ class Cli(object):
 
   def run(self):
     (original_parser, options, args) = parser.parse_args()
+    daemon = not options.nodaemon
     try:
       self.validate_input_params(app_path=options.app_path,\
           uuid=options.uuid, recv=options.recv, send=options.send,\
@@ -37,18 +38,22 @@ class Cli(object):
         plugnplay.set_plugin_dirs(*options.loader_dir)
         plugnplay.load_plugins()
 
-      wsgi_app = load_app(options.app_path, options.wsgi_app)
-      wsgid = Wsgid(wsgi_app, options.uuid, options.recv, options.send)
-      wsgid.log = logging.getLogger('wsgid')
-      wsgid.serve()
+      if daemon:
+        pass # daemon code
+      else:
+        self._call_wsgid(options)
     except Exception, e:
       self.log.exception(e)
       sys.exit(1)
 
+  def _call_wsgid(self, options):
+    wsgi_app = load_app(options.app_path, options.wsgi_app)
+    wsgid = Wsgid(wsgi_app, options.uuid, options.recv, options.send)
+    wsgid.log = logging.getLogger('wsgid')
+    wsgid.serve()
+
   def _set_loggers(self, options):
     level = logging.INFO if not options.debug else logging.DEBUG
-    print options.debug
-
     logger = logging.getLogger('wsgid')
     logger.setLevel(level)
     console = logging.StreamHandler()

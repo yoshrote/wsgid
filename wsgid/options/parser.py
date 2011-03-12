@@ -19,6 +19,9 @@ optparser.add_option('--loader-dir', help="Aditional dir for custom Application 
 optparser.add_option('--debug', help="Runs wsgid in debug mode. Lots of logging.",\
     action="store_true", dest="debug")
 
+optparser.add_option('--no-daemon', help="Runs wsgid in the foreground, printing all logs to stderr",\
+    action="store_true", dest="nodaemon")
+
 optparser.add_option('--uuid', help="Sets the server's uuid value",\
     action="store", dest="uuid")
 
