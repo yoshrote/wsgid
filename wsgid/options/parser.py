@@ -22,6 +22,9 @@ optparser.add_option('--debug', help="Runs wsgid in debug mode. Lots of logging.
 optparser.add_option('--no-daemon', help="Runs wsgid in the foreground, printing all logs to stderr",\
     action="store_true", dest="nodaemon")
 
+optparser.add_option('--workers', help="Starts a fixed number of wsgid processes. Defaults to 1",\
+    action="store", default="1", type="int", dest="workers")
+
 optparser.add_option('--chroot', help="Chroot to the value of --app-path, before loading the app.",\
     action="store_true", dest="chroot")
 

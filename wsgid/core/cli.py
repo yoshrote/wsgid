@@ -18,10 +18,9 @@ class Cli(object):
   '''
 
   def validate_input_params(self, app_path, uuid, recv, send, wsgi_app):
-    abs_path = os.path.abspath(os.path.expanduser(app_path))
     if not app_path and not wsgi_app:
       raise Exception("--app-path is mandatory when --wsgi-app is not passed\n")
-    if app_path and not os.path.exists(abs_path):
+    if app_path and not self._full_path(app_path):
       raise Exception("path %s does not exist.\n" % abs_path)
     if not uuid:
       raise Exception("UUID is mandatory\n")
@@ -40,16 +39,36 @@ class Cli(object):
       ctx = daemon.DaemonContext(**daemon_options)
       self._set_loggers(options)
       with ctx:
-        if options.loader_dir:
-          plugnplay.set_plugin_dirs(*options.loader_dir)
-          plugnplay.load_plugins()
+        self.log.info("Master process started")
+        self._load_plugins(options)
 
-        self._call_wsgid(options)
+        if options.nodaemon:
+          self._call_wsgid(options)
+        else:
+          workers = []
+          for worker in range(options.workers):
+            pid = self._create_worker(options)
+            workers.append(pid)
+          self._wait_workers(workers)
     except Exception, e:
       import traceback
       exc = sys.exc_info()
       sys.stderr.write("".join(traceback.format_exception(exc[0], exc[1], exc[2])))
       sys.exit(1)
+
+  def _wait_workers(self, workers):
+    while True:
+      dead_worker = os.wait()
+      workers.remove(dead_worker[0])
+      self.log.info("Worker finished, pid=%s retval=%s" % dead_worker)
+      if not workers:
+        self.log.info("No more workers to wait for and no keep alive requested, exiting...")
+        sys.exit(0)
+
+  def _load_plugins(self, options):
+    if options.loader_dir:
+      plugnplay.set_plugin_dirs(*options.loader_dir)
+      plugnplay.load_plugins()
 
   def _create_daemon_options(self, options):
     daemon = {'detach_process': not options.nodaemon}
@@ -80,6 +99,16 @@ class Cli(object):
 
   def _full_path(self, path):
     return os.path.abspath(os.path.expanduser(path))
+
+  '''
+   Forks a new wsgid worker, return this pid of this worker
+  '''
+  def _create_worker(self, options):
+    pid = os.fork()
+    if not pid:
+      self.log.info("New wsgid worker created")
+      self._call_wsgid(options)
+    return pid
 
   def _call_wsgid(self, options):
     path = options.app_path
