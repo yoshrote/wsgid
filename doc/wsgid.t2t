@@ -45,6 +45,10 @@ In this example you would call wsgid with **--wsgi-app=myapp.web.frontends.wsgi.
 The WSGI application object does not necessarily have to be named //application//. So if your app defines an object named //wsgi_entry_point//, no problem just pass to wsgid **--wsgi-app=myapp.web.frontends.wsgi.wsgi_entry_point**
 : **--loader-dir=LOADER_DIR**
 If wsgid can not auto-load your app you can write your own loader and point its locations to wsgid with this option. This path is just an folder with some .py files. wsgid will try to load all .py files searching for custom application loaders. The first loader that reports the ability to load the given application will be used
+
+When this option is used at the same time that the --chroot option, the value passed will be realtive to the --app-path folder.
+: **--chroot**
+When this options is used, wsgid does a chroot to the --app-path folder. Remember that you have to run wsgid as root so this options takes effect. As running a daemon as root is not a good idea, wsgid will drop privileges to the user/group hat owns the --app-path folder
 : **--uuid=UUID**
 
 : **--recv=RECV**

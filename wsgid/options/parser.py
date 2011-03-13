@@ -22,6 +22,9 @@ optparser.add_option('--debug', help="Runs wsgid in debug mode. Lots of logging.
 optparser.add_option('--no-daemon', help="Runs wsgid in the foreground, printing all logs to stderr",\
     action="store_true", dest="nodaemon")
 
+optparser.add_option('--chroot', help="Chroot to the value of --app-path, before loading the app.",\
+    action="store_true", dest="chroot")
+
 optparser.add_option('--uuid', help="Sets the server's uuid value",\
     action="store", dest="uuid")
 
@@ -33,7 +36,7 @@ optparser.add_option('--send', help="TCP socket used to return data to mongrel2.
 
 def parse_args():
   (options, args) = optparser.parse_args()
-  return (optparser, options, args)
+  return options
 
 
 

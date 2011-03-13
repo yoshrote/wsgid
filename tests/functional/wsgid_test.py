@@ -6,6 +6,7 @@ from wsgid.test import simple_fork
 
 import os
 import urllib2
+import logging
 
 class WsgidServeTest(unittest.TestCase):
 
@@ -94,7 +95,11 @@ class WsgidServeTest(unittest.TestCase):
 
   def _run_wsgid(self, app):
     def _serve(app):
-      w = Wsgid(app, 'e240f04a-acbd-414f-a1b3-e070644713d7', 'tcp://127.0.0.1:8889', 'tcp://127.0.0.1:8890')
+      w = Wsgid(app, 
+          'e240f04a-acbd-414f-a1b3-e070644713d7', 
+          'tcp://127.0.0.1:8889', 
+          'tcp://127.0.0.1:8890')
+      w.log = logging
       w.serve()
     import multiprocessing
     p = multiprocessing.Process(target=_serve, args=(app,))

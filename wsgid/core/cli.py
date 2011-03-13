@@ -2,6 +2,7 @@
 
 import sys
 import logging
+import os
 
 from ..options import parser
 from wsgid import Wsgid
@@ -17,8 +18,11 @@ class Cli(object):
   '''
 
   def validate_input_params(self, app_path, uuid, recv, send, wsgi_app):
+    abs_path = os.path.abspath(os.path.expanduser(app_path))
     if not app_path and not wsgi_app:
       raise Exception("--app-path is mandatory when --wsgi-app is not passed\n")
+    if app_path and not os.path.exists(abs_path):
+      raise Exception("path %s does not exist.\n" % abs_path)
     if not uuid:
       raise Exception("UUID is mandatory\n")
     if not recv:
@@ -27,33 +31,32 @@ class Cli(object):
       raise Exception("Send socker is mandatory\n")
 
   def run(self):
-    (original_parser, options, args) = parser.parse_args()
+    options = parser.parse_args()
+    self.validate_input_params(app_path=options.app_path,\
+        uuid=options.uuid, recv=options.recv, send=options.send,\
+        wsgi_app=options.wsgi_app)
     try:
-      self._set_loggers(options)
-
-      self.validate_input_params(app_path=options.app_path,\
-          uuid=options.uuid, recv=options.recv, send=options.send,\
-          wsgi_app=options.wsgi_app)
-
-      daemon_options = self._create_deamon_options(options)
-
-      if options.loader_dir:
-        plugnplay.set_plugin_dirs(*options.loader_dir)
-        plugnplay.load_plugins()
-
+      daemon_options = self._create_daemon_options(options)
       ctx = daemon.DaemonContext(**daemon_options)
+      self._set_loggers(options)
       with ctx:
+        if options.loader_dir:
+          plugnplay.set_plugin_dirs(*options.loader_dir)
+          plugnplay.load_plugins()
+
         self._call_wsgid(options)
     except Exception, e:
-      self.log.exception(e)
+      import traceback
+      exc = sys.exc_info()
+      sys.stderr.write("".join(traceback.format_exception(exc[0], exc[1], exc[2])))
       sys.exit(1)
 
-  def _create_deamon_options(self, options):
+  def _create_daemon_options(self, options):
     daemon = {'detach_process': not options.nodaemon}
+    daemon.update({ 'stdin': sys.stdin, 
+                   'stdout': sys.stdout, 
+                   'stderr': sys.stderr})
     if options.nodaemon:
-      daemon.update({ 'stdin': sys.stdin, 
-                     'stdout': sys.stdout, 
-                     'stderr': sys.stderr})
       # If we are not a daemon we must maintain the basic signal handlers
       daemon.update({'signal_map': {
           signal.SIGTTIN: signal.getsignal(signal.SIGTTIN),
@@ -65,10 +68,24 @@ class Cli(object):
       daemon.update({'signal_map':
                       {signal.SIGTERM: signal.getsignal(signal.SIGTERM)}
         })
+
+
+    if options.chroot and options.app_path:
+      full_path = self._full_path(options.app_path)
+      stat = os.stat(full_path)
+      daemon.update({'chroot_directory': full_path,
+                     'uid': stat.st_uid,
+                     'gid': stat.st_gid})
     return daemon
 
+  def _full_path(self, path):
+    return os.path.abspath(os.path.expanduser(path))
+
   def _call_wsgid(self, options):
-    wsgi_app = load_app(options.app_path, options.wsgi_app)
+    path = options.app_path
+    if options.chroot:
+      path = '/'
+    wsgi_app = load_app(path, options.wsgi_app)
     wsgid = Wsgid(wsgi_app, options.uuid, options.recv, options.send)
     wsgid.log = logging.getLogger('wsgid')
     wsgid.serve()
