@@ -147,7 +147,7 @@ class Cli(object):
     level = logging.INFO if not options.debug else logging.DEBUG
     logger = logging.getLogger('wsgid')
     logger.setLevel(level)
-    console = logging.FileHandler('/tmp/wsgid.log')
+    console = logging.StreamHandler() if options.nodaemon else logging.FileHandler('/tmp/wsgid.log')
     console.setLevel(level)
 
     formatter = logging.Formatter("%(asctime)s - %(name)s [pid=%(process)d] - %(levelname)s - %(message)s")
