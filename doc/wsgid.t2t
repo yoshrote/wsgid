@@ -62,7 +62,7 @@ The format of //SEND// can be any format accpeted by zeromq
 : **--no-dameon**
 Used mainly for debug purposes. When this option is passed wsgid will not fork to background and will write all logs to stderr.
 : **--workers**
-Set the number of wsgid workers processes. Each process has its own PID and is respondible for handling one request at a time.
+Set the number of wsgid workers processes. Each process has its own PID and is responsible for handling one request at a time.
 : **--keep-alive**
 This option will make wsgid watch for its child processes. If any child process dies a new process is created imediately.
 : **--debug**

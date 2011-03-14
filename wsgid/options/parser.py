@@ -25,6 +25,9 @@ optparser.add_option('--no-daemon', help="Runs wsgid in the foreground, printing
 optparser.add_option('--workers', help="Starts a fixed number of wsgid processes. Defaults to 1",\
     action="store", default="1", type="int", dest="workers")
 
+optparser.add_option('--keep-alive', help="Automatically respawn any dead worker. Killink the master process kills any pending worker",\
+    action="store_true", dest="keep_alive")
+
 optparser.add_option('--chroot', help="Chroot to the value of --app-path, before loading the app.",\
     action="store_true", dest="chroot")
 

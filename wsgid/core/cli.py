@@ -31,13 +31,16 @@ class Cli(object):
 
   def run(self):
     options = parser.parse_args()
+    self.options = options # Will be used by the signal handlers
     self.validate_input_params(app_path=options.app_path,\
         uuid=options.uuid, recv=options.recv, send=options.send,\
         wsgi_app=options.wsgi_app)
     try:
+      files_preserve = self._set_loggers(options)
       daemon_options = self._create_daemon_options(options)
+      daemon_options['files_preserve'] = [files_preserve]
       ctx = daemon.DaemonContext(**daemon_options)
-      self._set_loggers(options)
+
       with ctx:
         self.log.info("Master process started")
         self._load_plugins(options)
@@ -45,23 +48,40 @@ class Cli(object):
         if options.nodaemon:
           self._call_wsgid(options)
         else:
-          workers = []
+          self.workers = []
           for worker in range(options.workers):
             pid = self._create_worker(options)
-            workers.append(pid)
-          self._wait_workers(workers)
+            self.workers.append(pid)
+          #Now we can register the master process SIGTERM handler
+          signal.signal(signal.SIGTERM, self._sigterm_handler)
+          self._wait_workers()
     except Exception, e:
       import traceback
       exc = sys.exc_info()
       sys.stderr.write("".join(traceback.format_exception(exc[0], exc[1], exc[2])))
       sys.exit(1)
 
-  def _wait_workers(self, workers):
+  '''
+    This is the SIGTERM handler of the master process.
+    This method kills any worker left when master process is killed
+  '''
+  def _sigterm_handler(self, sig, stack):
+    self.log.debug("SIGTERM received, killing any pending worker")
+    for w in self.workers:
+      self.log.debug("Killing worker pid=%s" % w)
+      os.kill(w, signal.SIGTERM)
+    self.log.info("Exiting...")
+    sys.exit(0)
+
+  def _wait_workers(self):
     while True:
       dead_worker = os.wait()
-      workers.remove(dead_worker[0])
+      self.workers.remove(dead_worker[0])
       self.log.info("Worker finished, pid=%s retval=%s" % dead_worker)
-      if not workers:
+      if self.options.keep_alive:
+        self.workers.append(self._create_worker(self.options))
+        self.log.debug("Current active workers=%s" % self.workers)
+      if not self.workers:
         self.log.info("No more workers to wait for and no keep alive requested, exiting...")
         sys.exit(0)
 
@@ -105,9 +125,13 @@ class Cli(object):
   '''
   def _create_worker(self, options):
     pid = os.fork()
-    if not pid:
-      self.log.info("New wsgid worker created")
+    if pid == 0:
+      self.workers = []
+      self.log = logging.getLogger('wsgid')
+      signal.signal(signal.SIGTERM, signal.SIG_DFL)
       self._call_wsgid(options)
+
+    self.log.info("New wsgid worker created pid=%s" % pid)
     return pid
 
   def _call_wsgid(self, options):
@@ -123,7 +147,7 @@ class Cli(object):
     level = logging.INFO if not options.debug else logging.DEBUG
     logger = logging.getLogger('wsgid')
     logger.setLevel(level)
-    console = logging.StreamHandler()
+    console = logging.FileHandler('/tmp/wsgid.log')
     console.setLevel(level)
 
     formatter = logging.Formatter("%(asctime)s - %(name)s [pid=%(process)d] - %(levelname)s - %(message)s")
@@ -131,3 +155,5 @@ class Cli(object):
 
     logger.addHandler(console)
     self.log = logger
+    # Return all files that the log uses, for now just one.
+    return console.stream
