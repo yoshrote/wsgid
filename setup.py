@@ -14,7 +14,7 @@ setup(
   long_description=file('README').read(),
   packages=['wsgid', 'wsgid/options', 'wsgid/core', 'wsgid.http', 'wsgid.loaders'],
   scripts=['scripts/wsgid'],
-  install_requires = ['plugnplay', 'pyzmq'],
+  install_requires = ['plugnplay', 'pyzmq', 'python-daemon'],
   classifiers = [
     "License :: OSI Approved :: GNU General Public License (GPL)",
     "Operating System :: OS Independent",
