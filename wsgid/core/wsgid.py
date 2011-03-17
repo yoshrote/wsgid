@@ -23,12 +23,11 @@ class Wsgid(object):
   def serve(self):
     recv_sock = self.ctx.socket(zmq.PULL)
     recv_sock.connect(self.recv)
-    recv_sock.setsockopt(zmq.IDENTITY, self.recv_ident)
-    self.log.info("Using PULL socket %s with IDENTITY %s" % (self.recv, self.recv_ident))
+    self.log.debug("Using PULL socket %s with IDENTITY %s" % (self.recv, self.recv_ident))
 
     send_sock = self.ctx.socket(zmq.PUB)
     send_sock.connect(self.send)
-    self.log.info("Using PUB socket %s with IDENTITY %s" % (self.send, ''))
+    self.log.debug("Using PUB socket %s with IDENTITY %s" % (self.send, ''))
 
     self.log.info("All set, ready to serve requests...")
     while True:

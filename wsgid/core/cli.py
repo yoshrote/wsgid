@@ -5,8 +5,6 @@ import logging
 import os
 
 from ..options import parser
-from wsgid import Wsgid
-from ..loaders import load_app
 
 import plugnplay
 import daemon
@@ -82,7 +80,7 @@ class Cli(object):
         self.workers.append(self._create_worker(self.options))
         self.log.debug("Current active workers=%s" % self.workers)
       if not self.workers:
-        self.log.info("No more workers to wait for and no keep alive requested, exiting...")
+        self.log.debug("No more workers to wait for and no keep alive requested, exiting...")
         sys.exit(0)
 
   def _load_plugins(self, options):
@@ -135,6 +133,8 @@ class Cli(object):
     return pid
 
   def _call_wsgid(self, options):
+    from wsgid import Wsgid
+    from ..loaders import load_app
     path = options.app_path
     if options.chroot:
       path = '/'
@@ -157,3 +157,5 @@ class Cli(object):
     self.log = logger
     # Return all files that the log uses, for now just one.
     return console.stream
+
+

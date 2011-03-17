@@ -30,7 +30,7 @@ def load_app(app_path, wsgi_app_full_name):
 
   if app_path:
     absolute_path = os.path.abspath(os.path.expanduser(app_path))
-    log.info("Adding %s to sys.path" % absolute_path)
+    log.debug("Adding %s to sys.path" % absolute_path)
     sys.path.append(absolute_path)
 
   if wsgi_app_full_name:
