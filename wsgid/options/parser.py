@@ -31,9 +31,6 @@ optparser.add_option('--keep-alive', help="Automatically respawn any dead worker
 optparser.add_option('--chroot', help="Chroot to the value of --app-path, before loading the app.",\
     action="store_true", dest="chroot")
 
-optparser.add_option('--uuid', help="Sets the server's uuid value",\
-    action="store", dest="uuid")
-
 optparser.add_option('--recv', help="TCP socket used to receive data from mongrel2. Format is IP:Port or *:Port to listen on any local IP",\
     action="store", dest="recv")
 

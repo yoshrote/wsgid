@@ -8,10 +8,9 @@ from StringIO import StringIO
 
 class Wsgid(object):
   
-  def __init__(self, app = None, recv_ident = None, recv = None, send = None):
+  def __init__(self, app = None, recv = None, send = None):
     self.environ = {}
     self.app = app
-    self.recv_ident = recv_ident
     self.recv = recv
     self.send = send
 
@@ -23,11 +22,11 @@ class Wsgid(object):
   def serve(self):
     recv_sock = self.ctx.socket(zmq.PULL)
     recv_sock.connect(self.recv)
-    self.log.debug("Using PULL socket %s with IDENTITY %s" % (self.recv, self.recv_ident))
+    self.log.debug("Using PULL socket %s" % self.recv)
 
     send_sock = self.ctx.socket(zmq.PUB)
     send_sock.connect(self.send)
-    self.log.debug("Using PUB socket %s with IDENTITY %s" % (self.send, ''))
+    self.log.debug("Using PUB socket %s" % self.send)
 
     self.log.info("All set, ready to serve requests...")
     while True:

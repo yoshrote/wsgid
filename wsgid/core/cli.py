@@ -15,13 +15,11 @@ class Cli(object):
    Command Line interface for wsgid
   '''
 
-  def validate_input_params(self, app_path, uuid, recv, send, wsgi_app):
+  def validate_input_params(self, app_path, recv, send, wsgi_app):
     if not app_path and not wsgi_app:
       raise Exception("--app-path is mandatory when --wsgi-app is not passed\n")
     if app_path and not self._full_path(app_path):
       raise Exception("path %s does not exist.\n" % abs_path)
-    if not uuid:
-      raise Exception("UUID is mandatory\n")
     if not recv:
       raise Exception("Recv socket is mandatory\n")
     if not send:
@@ -31,7 +29,7 @@ class Cli(object):
     options = parser.parse_args()
     self.options = options # Will be used by the signal handlers
     self.validate_input_params(app_path=options.app_path,\
-        uuid=options.uuid, recv=options.recv, send=options.send,\
+        recv=options.recv, send=options.send,\
         wsgi_app=options.wsgi_app)
     try:
       files_preserve = self._set_loggers(options)
@@ -139,7 +137,7 @@ class Cli(object):
     if options.chroot:
       path = '/'
     wsgi_app = load_app(path, options.wsgi_app)
-    wsgid = Wsgid(wsgi_app, options.uuid, options.recv, options.send)
+    wsgid = Wsgid(wsgi_app, options.recv, options.send)
     wsgid.log = logging.getLogger('wsgid')
     wsgid.serve()
 
