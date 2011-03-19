@@ -3,6 +3,7 @@
 import sys
 import signal
 import os
+import logging
 
 import unittest
 from wsgid.core.cli import Cli
@@ -71,4 +72,16 @@ class CliTest(unittest.TestCase):
   def _parse(self, *opts):
     sys.argv[1:] = opts
     return self.cli._create_daemon_options(parser.parse_args())
+
+  '''
+    We must generate all logs inside <app-path>/logs
+  '''
+  def test_ajust_log_path_app_path(self):
+    app_path = os.path.join('../', os.path.dirname(__file__), 'app-path')
+    sys.argv[1:] = ['--app-path=%s' % app_path]
+    opt = parser.parse_args()
+    self.cli._set_loggers(opt)
+    handlers = self.cli.log.handlers
+    self.assertTrue(isinstance(handlers[0], logging.FileHandler))
+    self.assertEquals(os.path.join(app_path, 'logs/wsgid.log'), handlers[0].baseFilename)
 

@@ -27,17 +27,20 @@ class Cli(object):
 
   def run(self):
     options = parser.parse_args()
-    self.options = options # Will be used by the signal handlers
     self.validate_input_params(app_path=options.app_path,\
         recv=options.recv, send=options.send,\
         wsgi_app=options.wsgi_app)
+    options.app_path = self._full_path(options.app_path)
+    self.options = options # Will be used by the signal handlers
     try:
-      files_preserve = self._set_loggers(options)
       daemon_options = self._create_daemon_options(options)
-      daemon_options['files_preserve'] = [files_preserve]
+      #if not options.nodaemon:
+      #  files_preserve = self._set_loggers(options)
+      #  daemon_options['files_preserve'] = [files_preserve]
       ctx = daemon.DaemonContext(**daemon_options)
 
       with ctx:
+        self._set_loggers(options)
         self.log.info("Master process started")
         self._load_plugins(options)
 
@@ -145,7 +148,12 @@ class Cli(object):
     level = logging.INFO if not options.debug else logging.DEBUG
     logger = logging.getLogger('wsgid')
     logger.setLevel(level)
-    console = logging.StreamHandler() if options.nodaemon else logging.FileHandler('/tmp/wsgid.log')
+
+    log_path = os.path.join(options.app_path, 'logs/wsgid.log')
+    if options.chroot:
+      log_path = os.path.join('/', 'logs/wsgid.log')
+    
+    console = logging.StreamHandler() if options.nodaemon else logging.FileHandler(log_path)
     console.setLevel(level)
 
     formatter = logging.Formatter("%(asctime)s - %(name)s [pid=%(process)d] - %(levelname)s - %(message)s")
