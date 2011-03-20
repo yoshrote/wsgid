@@ -2,11 +2,11 @@
 
 import plugnplay
 import os
-from ..core import Plugin
+from ..core import Plugin, get_main_logger
 import sys
 import logging
 
-log = logging.getLogger('wsgid')
+log = get_main_logger()
 
 class IAppLoader(plugnplay.Interface):
 

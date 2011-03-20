@@ -2,7 +2,7 @@
 
 import urllib
 from ..http import HTTP_HEADERS
-from ..core import Message, StartResponse
+from ..core import Message, StartResponse, get_main_logger
 import zmq
 from StringIO import StringIO
 
@@ -13,8 +13,9 @@ class Wsgid(object):
     self.app = app
     self.recv = recv
     self.send = send
-
+    
     self.ctx = zmq.Context()
+    self.log = get_main_logger()
 
   '''
    Start serving requests.

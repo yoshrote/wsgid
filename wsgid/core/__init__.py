@@ -2,7 +2,7 @@
 
 __all__ = ['StartResponse', 'StartResponseCalledTwice', 'Plugin']
 
-
+import logging
 import plugnplay
 
 Plugin = plugnplay.Plugin
@@ -39,6 +39,16 @@ class StartResponse(object):
 
 class StartResponseCalledTwice(Exception):
   pass
+
+
+log = logging.getLogger('wsgid')
+
+def get_main_logger():
+  return log
+
+def set_main_logger(logger):
+  log = logger
+
 
 from message import *
 from wsgid import *

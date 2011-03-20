@@ -5,6 +5,7 @@ import logging
 import os
 
 from ..options import parser
+from ..core import get_main_logger, set_main_logger
 
 import plugnplay
 import daemon
@@ -141,12 +142,11 @@ class Cli(object):
       path = '/'
     wsgi_app = load_app(path, options.wsgi_app)
     wsgid = Wsgid(wsgi_app, options.recv, options.send)
-    wsgid.log = logging.getLogger('wsgid')
     wsgid.serve()
 
   def _set_loggers(self, options):
     level = logging.INFO if not options.debug else logging.DEBUG
-    logger = logging.getLogger('wsgid')
+    logger = get_main_logger()
     logger.setLevel(level)
 
     log_path = os.path.join(options.app_path, 'logs/wsgid.log')
@@ -161,7 +161,5 @@ class Cli(object):
 
     logger.addHandler(console)
     self.log = logger
-    # Return all files that the log uses, for now just one.
-    return console.stream
-
+    set_main_logger(logger)
 
