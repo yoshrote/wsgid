@@ -1,0 +1,52 @@
+{% extends "basic/layout.html" %}
+
+{% block relbar1 %} {% endblock %}
+
+{% block relbar2 %} 
+<div class="container">
+  {% block rootrellink %}
+    {{ super() }}
+  {% endblock %}
+</div>
+{% endblock %}
+
+{% block sidebarsearch %} {% endblock %}
+{% block sidebarsourcelink %} {% endblock %}
+
+{% block sidebartoc %}
+<div class="container">
+  {{ super () }}
+</div>
+{% endblock %}
+
+{% block sidebarrel %}
+<hr/>
+<div class="container">
+  {{ super () }}
+</div>
+{% endblock %}
+
+{% block document %}
+<div class="bgblack">
+  <div class="container">
+    <div class="span-24 last append-bottom alt">
+      <p> <h1> 
+      <span class="caps white">WSGID</span> <span class="alt"> When your WSGI app becomes a *nix daemon </span></h1></p>
+    </div>
+  </div>
+</div>
+<hr/>
+
+<div class="container">
+  {{ super() }}
+</div>
+{% endblock %}
+
+{% block footer %}
+<div class="bgblack" id="footer">
+  <div class="container">
+    {{ super () }}
+  </div>
+</div>
+{% endblock %}
+
