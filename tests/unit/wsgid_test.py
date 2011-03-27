@@ -109,6 +109,14 @@ class WsgidTest(unittest.TestCase):
     environ = self.wsgid._create_wsgi_environ(self.sample_headers)
     self.assertEquals('someserver', environ['SERVER_NAME'])
 
+  '''
+   HTTP_HOST must inclue the port, if present.
+  '''
+  def test_environ_http_host(self):
+    self.sample_headers['host'] = 'localhost:8080'
+    environ = self.wsgid._create_wsgi_environ(self.sample_headers)
+    self.assertEquals('localhost:8080', environ['HTTP_HOST'])
+
   def test_environ_content_type(self):
     self.sample_headers['content-type'] = 'application/xml'
     environ = self.wsgid._create_wsgi_environ(self.sample_headers)

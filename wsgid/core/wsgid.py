@@ -126,7 +126,7 @@ class Wsgid(object):
     else:
       server_name = host_header
 
-    self._set(self.environ, 'HTTP_HOST', server_name)
+    self._set(self.environ, 'HTTP_HOST', host_header)
     self._set(self.environ, 'SERVER_PORT', server_port)
     self._set(self.environ, 'SERVER_NAME', server_name)
     
