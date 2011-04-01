@@ -1,7 +1,6 @@
 #encoding: utf-8
 
 import urllib
-from ..http import HTTP_HEADERS
 from ..core import Message, StartResponse, get_main_logger
 import zmq
 from StringIO import StringIO
@@ -138,7 +137,7 @@ class Wsgid(object):
 
     #Pass the other headers
     for (header, value) in json_headers.iteritems():
-      if header[0] in ('X', 'x') or header.lower() in HTTP_HEADERS:
+      if header[0] in ('X', 'x'):
         self.environ[header] = str(value)
       else:
         self.environ['HTTP_%s' % header] = str(value)

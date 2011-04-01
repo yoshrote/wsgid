@@ -175,8 +175,8 @@ class WsgidTest(unittest.TestCase):
     self.assertEquals('some-value', environ['HTTP_my_header'])
     self.assertEquals('other-value', environ['HTTP_OTHER_HEADER'])
     self.assertEquals('x-header', environ['X-Some-Header'])
-    self.assertEquals('*/*', environ['Accept'])
-    self.assertEquals('http://www.someserver.com', environ['Referer'])
+    self.assertEquals('*/*', environ['HTTP_Accept'])
+    self.assertEquals('http://www.someserver.com', environ['HTTP_Referer'])
 
 
   '''
@@ -208,8 +208,8 @@ class WsgidTest(unittest.TestCase):
     self.assertEquals('localhost', environ['SERVER_NAME'])
     self.assertEquals('80', environ['SERVER_PORT'])
     self.assertEquals('value', environ['HTTP_CUSTOM_HEADER'])
-    self.assertEquals('*/*', environ['Accept'])
-    self.assertEquals('some user agent/1.0', environ['User-Agent'])
+    self.assertEquals('*/*', environ['HTTP_Accept'])
+    self.assertEquals('some user agent/1.0', environ['HTTP_User-Agent'])
     self.assertEquals('42', environ['CONTENT_LENGTH'])
     self.assertEquals('42', environ['content-length'])
     self.assertEquals('text/plain', environ['CONTENT_TYPE'])
