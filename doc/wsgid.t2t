@@ -27,6 +27,8 @@ Path to the WSGI application. This should be the path where the code of your app
 This path will be added to sys.path so any module below this hirearchy can be imported with a simple //import <modulename>//
 
 The directory that contains your application must obey some rules, please see APP Format section of this manual.
+
+**Note**: If this option is not passed, wsgid will generate logs inside /tmp/logs, so be sure that this path exists before running wsgid in daemon mode.
 : **--wsgi-app**
 Full qualified name for the WSGI application object. This options is used in two main ocasions. One: When wsgid cannot load your app automatically just by looking at **--app-path**. Two: When yout app is installed system wide. Supose you have inside in your app an package name //web//, and in this pachage you have a module names //frontends//. Supose frontends/wsgi.py is the module that defines the WSGI application object, as specified by PEP-333.
 ```

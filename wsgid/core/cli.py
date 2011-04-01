@@ -117,8 +117,10 @@ class Cli(object):
                      'gid': stat.st_gid})
     return daemon
 
-  def _full_path(self, path):
-    return os.path.abspath(os.path.expanduser(path))
+  def _full_path(self, path=None):
+    if path:
+      return os.path.abspath(os.path.expanduser(path))
+    return path
 
   '''
    Forks a new wsgid worker, return this pid of this worker
@@ -149,11 +151,16 @@ class Cli(object):
     logger = get_main_logger()
     logger.setLevel(level)
 
-    log_path = os.path.join(options.app_path, 'logs/wsgid.log')
+
     if options.chroot:
       log_path = os.path.join('/', 'logs/wsgid.log')
     
-    console = logging.StreamHandler() if options.nodaemon else logging.FileHandler(log_path)
+    if options.nodaemon:
+      console = logging.StreamHandler()
+    else:
+      log_path = os.path.join(options.app_path or '/tmp', 'logs/wsgid.log')
+      console = logging.FileHandler(log_path)
+
     console.setLevel(level)
 
     formatter = logging.Formatter("%(asctime)s - %(name)s [pid=%(process)d] - %(levelname)s - %(message)s")

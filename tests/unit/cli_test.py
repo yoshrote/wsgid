@@ -85,3 +85,5 @@ class CliTest(unittest.TestCase):
     self.assertTrue(isinstance(handlers[0], logging.FileHandler))
     self.assertEquals(os.path.join(app_path, 'logs/wsgid.log'), handlers[0].baseFilename)
 
+  def test_full_path_empty_path(self):
+    self.assertEquals(self.cli._full_path(None), None)
