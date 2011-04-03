@@ -10,7 +10,6 @@ app-path
   --app-path
 
 Path to the WSGI application. This should be the path where the code of your application is located. If the app is installed system wide, you don't need this.
-This path will be added to sys.path so any module below this hirearchy can be imported with a simple *import <modulename>*.
 The directory that contains your application must obey some rules, please see :doc:`appstructure`.
 
 wsgi-app
