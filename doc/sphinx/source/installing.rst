@@ -26,17 +26,24 @@ Instalation options
 :::::::::::::::::::
 
 Pip
-:::
+***
 
-wsgid is registered on Python package index under the name wsgid, so you can install it running te following command:
+wsgid is registered on Python package index under the name wsgidm2 (the name wsgid was already taken), so you can install it running te following command:
 
-    $ sudo pip install wsgid
+    $ sudo pip install wsgidm2
 
 and you're done!
 
 
+From the website
+****************
+
+The official website (http://wsgid.com) has always tha latest releasr tar ball. You can grab one there, unpack and run:
+
+    $ sudo python setup.py install
+
 From Source-code
-::::::::::::::::
+****************
 
 wsgid source-code is hosted on github (https://github.com). To get a copy run:
 
