@@ -157,7 +157,9 @@ class Cli(object):
   def _call_wsgid(self, options):
     from wsgid import Wsgid
     from ..loaders import load_app
-    wsgi_app = load_app(options.app_path, options.wsgi_app)
+    # The app source-code is inside an "app" folder, so we join this part
+    # here and pass it to the AppLoaders.
+    wsgi_app = load_app(os.path.join(options.app_path, 'app'), options.wsgi_app)
     wsgid = Wsgid(wsgi_app, options.recv, options.send)
     wsgid.serve()
 
