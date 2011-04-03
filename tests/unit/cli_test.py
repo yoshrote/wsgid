@@ -87,3 +87,16 @@ class CliTest(unittest.TestCase):
 
   def test_full_path_empty_path(self):
     self.assertEquals(self.cli._full_path(None), None)
+
+  '''
+    Even if we do not chroot, we must drop priv.
+  '''
+  def test_should_droppriv_if_app_path_is_passed(self):
+    app_path = os.path.join('../', os.path.dirname(__file__), 'app-path')
+    argv = ['--app-path=%s' % app_path]
+    stat = os.stat(self.cli._full_path(app_path))
+    opts = self._parse(*argv)
+    self.assertEquals(opts['uid'], stat.st_uid)
+    self.assertEquals(opts['gid'], stat.st_gid)
+
+

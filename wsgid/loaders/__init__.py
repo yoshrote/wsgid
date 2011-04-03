@@ -39,7 +39,7 @@ def load_app(app_path, wsgi_app_full_name):
 
   app_loaders = IAppLoader.implementors()
   for loader in app_loaders:
-    if loader.can_load(absolute_path):
+    if loader.can_load(app_path):
       log.info("Using AppLoader: %s" % loader.__class__.__name__)
       return loader.load_app(absolute_path, wsgi_app_full_name)
 

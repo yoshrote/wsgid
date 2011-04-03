@@ -32,6 +32,7 @@ class Cli(object):
         recv=options.recv, send=options.send,\
         wsgi_app=options.wsgi_app)
     options.app_path = self._full_path(options.app_path)
+
     self.options = options # Will be used by the signal handlers
     try:
       daemon_options = self._create_daemon_options(options)
@@ -41,7 +42,12 @@ class Cli(object):
       ctx = daemon.DaemonContext(**daemon_options)
 
       with ctx:
+        # Now that we are chrooted (if desired) we should correct
+        # the paths
+        options.app_path = self._normalize_path(options)
         self._set_loggers(options)
+
+        self.log.debug("Dropping privileges to: uid=%s, gid=%s" % (daemon_options['uid'], daemon_options['gid']))
         self.log.info("Master process started")
         self._load_plugins(options)
 
@@ -108,19 +114,31 @@ class Cli(object):
                       {signal.SIGTERM: signal.getsignal(signal.SIGTERM)}
         })
 
+    daemon.update({'uid': os.getuid(), 'gid': os.getgid()})
 
-    if options.chroot and options.app_path:
+    if options.app_path:
       full_path = self._full_path(options.app_path)
       stat = os.stat(full_path)
-      daemon.update({'chroot_directory': full_path,
-                     'uid': stat.st_uid,
+      daemon.update({'uid': stat.st_uid,
                      'gid': stat.st_gid})
+
+      if options.chroot:
+        full_path = self._full_path(options.app_path)
+        stat = os.stat(full_path)
+        daemon.update({'chroot_directory': full_path,
+                       'uid': stat.st_uid,
+                       'gid': stat.st_gid})
     return daemon
 
   def _full_path(self, path=None):
     if path:
       return os.path.abspath(os.path.expanduser(path))
     return path
+
+  def _normalize_path(self, options):
+    if options.chroot:
+      return '/'
+    return options.app_path
 
   '''
    Forks a new wsgid worker, return this pid of this worker
@@ -139,10 +157,7 @@ class Cli(object):
   def _call_wsgid(self, options):
     from wsgid import Wsgid
     from ..loaders import load_app
-    path = options.app_path
-    if options.chroot:
-      path = '/'
-    wsgi_app = load_app(path, options.wsgi_app)
+    wsgi_app = load_app(options.app_path, options.wsgi_app)
     wsgid = Wsgid(wsgi_app, options.recv, options.send)
     wsgid.serve()
 
