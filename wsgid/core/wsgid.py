@@ -36,33 +36,37 @@ class Wsgid(object):
         self.log.debug("Disconnect message received, id=%s" % m2message.client_id)
         continue
 
-      environ = self._create_wsgi_environ(m2message.headers, m2message.body)
-      start_response = StartResponse()
 
-      server_id = m2message.server_id
-      client_id = m2message.client_id
-      response = None
-      try:
-        body = ''
-        response = self.app(environ, start_response)
+      # Call the app and send the response back to mongrel2
+      self._call_wsgi_app(m2message, send_sock)
+      
+  def _call_wsgi_app(self, m2message, send_sock):
+    environ = self._create_wsgi_environ(m2message.headers, m2message.body)
+    start_response = StartResponse()
 
-        if start_response.body_written:
-          body = start_response.body
-        else:
-          for data in response:
-            body += data
+    server_id = m2message.server_id
+    client_id = m2message.client_id
+    response = None
+    try:
+      body = ''
+      response = self.app(environ, start_response)
 
-        status = start_response.status
-        headers = start_response.headers
-        send_sock.send(str(self._reply(server_id, client_id, status, headers, body)))
-      except Exception, e:
-        # Internal Server Error
-        send_sock.send(self._reply(server_id, client_id, '500 Internal Server Error', headers=[]))
-        self.log.exception(e)
-      finally:
-        if hasattr(response, 'close'):
-          response.close()
+      if start_response.body_written:
+        body = start_response.body
+      else:
+        for data in response:
+          body += data
 
+      status = start_response.status
+      headers = start_response.headers
+      send_sock.send(str(self._reply(server_id, client_id, status, headers, body)))
+    except Exception, e:
+      # Internal Server Error
+      send_sock.send(self._reply(server_id, client_id, '500 Internal Server Error', headers=[]))
+      self.log.exception(e)
+    finally:
+      if hasattr(response, 'close'):
+        response.close()
 
   '''
    Constructs a mongrel2 response message based on the
