@@ -1,13 +1,9 @@
-Community
-=========
+Contributing
+============
 
 
 Contributing to the Project
 ***************************
 
-Explain how to contribute to the project...
+You can see the details of how to contribute in the official website: http://wsgid.com/contribute
 
-
-
-Get in touch
-************

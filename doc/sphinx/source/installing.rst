@@ -28,7 +28,7 @@ Instalation options
 Pip
 ***
 
-wsgid is registered on Python package index under the name wsgidm2 (the name wsgid was already taken), so you can install it running te following command:
+wsgid is registered on Python package index under the name wsgidm2 (the name wsgid was already taken), so you can install it running the following command:
 
     $ sudo pip install wsgidm2
 
@@ -38,7 +38,7 @@ and you're done!
 From the website
 ****************
 
-The official website (http://wsgid.com) has always tha latest releasr tar ball. You can grab one there, unpack and run:
+The official website (http://wsgid.com) has always tha latest release tar ball. You can grab one there, unpack and run:
 
     $ sudo python setup.py install
 
