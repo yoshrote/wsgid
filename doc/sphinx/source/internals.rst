@@ -21,7 +21,7 @@ Writing your App Loader
 
 Writing your own AppLoader is very easy and simple. As said before every plugin must inherit *wsgid.core.Plugin* class, so it's not different with the AppLoaders.
 
-To inform wsgid that your Plugin class implements the AppLoader interface (*wsgid.loaders.IAppLodaer*) you have to add one attribute to your class.::
+To inform wsgid that your Plugin class implements the AppLoader interface (:py:class:`wsgid.loaders.IAppLoader`) you have to add one attribute to your class.::
 
   implements = [IAppLoader]
 
