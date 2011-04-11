@@ -5,7 +5,7 @@ Installing WSGID
 Dependencies
 ::::::::::::
 
-Current version of wsgid depends on the following softwares:
+Current version of wsgid depends on the following software:
 
 * plugnplay: Implements all plugin infra-structure of wsgid
 
@@ -28,7 +28,7 @@ Instalation options
 Pip
 ***
 
-wsgid is registered on Python package index under the name wsgidm2 (the name wsgid was already taken), so you can install it running the following command:
+wsgid is registered on Python package index under the name wsgidm2 (the name wsgid was already taken), so you can install it by running the following command:
 
     $ sudo pip install wsgidm2
 
@@ -38,7 +38,7 @@ and you're done!
 From the website
 ****************
 
-The official website (http://wsgid.com) has always tha latest release tar ball. You can grab one there, unpack and run:
+The official website (http://wsgid.com) has always the latest release tarball. Grab it, unpack it, and run:
 
     $ sudo python setup.py install
 
@@ -54,5 +54,5 @@ Now *cd* into the created folder (wsgid) and run:
     $ sudo python setup.py install
 
 
-Note that this will get your a **read-only** copy of the code. If you are interested in contributing to the project, please se :doc:`contributing`.
+Note that this will get you a **read-only** copy of the code. If you are interested in contributing to the project, please see :doc:`contributing`.
 

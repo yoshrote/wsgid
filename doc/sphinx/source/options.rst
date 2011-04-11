@@ -21,7 +21,7 @@ Full qualified name for the WSGI application object. This options is used in two
 
     myapp/
       __init__.py
-      mdolue1.py
+      module1.py
       module2.py
       web/
         __init__.py
@@ -32,29 +32,29 @@ Full qualified name for the WSGI application object. This options is used in two
 
 In this example you would call wsgid with **--wsgi-app=myapp.web.frontends.wsgi.application**
 
-The WSGI application object does not necessarily have to be named *application*. So if your app defines an object named *wsgi_entry_point*, no problem just pass to wsgid **--wsgi-app=myapp.web.frontends.wsgi.wsgi_entry_point**
+The WSGI application object does not necessarily have to be named *application*. So if your app defines an object named *wsgi_entry_point*, just pass **--wsgi-app=myapp.web.frontends.wsgi.wsgi_entry_point** to wsgid.
 
-**Important**: if you pass *--wsgi-app* and not pass *--app-path*, wsgid wil generate all logs inside */tmp/logs*, so be sure that this path exists before running wsgid in daemon mode.
+**Important**: if you pass *--wsgi-app* and not *--app-path*, wsgid will generate all logs inside */tmp/logs*, so be sure that this path exists before running wsgid in daemon mode.
 
 loader-dir
 **********
     --loader-dir=LOADER_DIR
 
-If wsgid can not auto-load your app you can write your own loaders and point its locations to wsgid with this option. This path is just an folder with some .py files. wsgid will try to load all .py files searching for custom application loaders. The first loader that reports the ability to load the given application will be used
+If wsgid cannot auto-load your app, you can write your own loaders and point them to wsgid with this option. *LOADER_DIR* is just a folder with some .py files. wsgid will try to load all .py files searching for custom application loaders. The first loader that reports the ability to load the given application will be used
 
-When this option is used at the same time that the --chroot option, the value passed will be realtive to the --app-path folder. You can pass more than one *--liader-dir* options, all folders will be searched for custom loaders, in order.
+When this option is used at the same time as the --chroot option, the value passed will be relative to the --app-path folder. You can pass more than one *--loader-dir* options, all folders will be searched for custom loaders, in order.
 
 chroot
 ******
   --chroot
 
-When this options is used, wsgid does a chroot to the --app-path folder. Remember that you have to run wsgid as root so this options takes effect. As running a daemon as root is not a good idea, wsgid will drop privileges to the user/group that owns the *--app-path* folder.
+When this option is used, wsgid does a chroot to the --app-path folder. Remember that you have to run wsgid as root for this options to take effect. Running a daemon as root is not a good idea, so wsgid will drop privileges to the user/group that owns the *--app-path* folder.
 
 recv
 ****
   --recv=RECV_SOCKET
 
-TCP socket used to receive data from mongrel2. This is the same value that is in the *send_spec* of *handler* table of mongrel2 config database. By passing this option to wsgid your application will respond to requests for any mongrel2's routes associated with this socket.
+TCP socket used to receive data from mongrel2. This is the same value that is in the *send_spec* of *handler* table of mongrel2's config database. By passing this option to wsgid your application will respond to requests for any routes associated with this socket.
 
 The format of *RECV_SOCKET* can be any format accepted by zeromq
 
@@ -62,7 +62,7 @@ send
 ****
   --send=SEND_SOCKET
 
-TCP socket used to return data to mongrel2. This is the same value that is in the *recv_spec* of *handler* table of mongrel2 config database. This value must belong to the same registry from where you got your **--recv** socket.
+TCP socket used to return data to mongrel2. This is the same value that is in the *recv_spec* of *handler* table of mongrel2's config database. This value must belong to the same registry from where you got your **--recv** socket.
 
 The format of *SEND_SOCKET* can be any format accepted by zeromq
 
@@ -82,6 +82,5 @@ keep-alive
 **********
   --keep-alive
 
-This option will make wsgid watch for its child processes. If any child process dies a new process is created imediately.
-
+This option will make wsgid watch for its child processes. If any child process dies a new process is created immediately.
 
