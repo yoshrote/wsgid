@@ -25,16 +25,6 @@ You don't need to manually install all these dependencies as the *setup.py* inst
 Instalation options
 :::::::::::::::::::
 
-Pip
-***
-
-wsgid is registered on Python package index under the name wsgidm2 (the name wsgid was already taken), so you can install it by running the following command:
-
-    $ sudo pip install wsgidm2
-
-and you're done!
-
-
 From the website
 ****************
 
