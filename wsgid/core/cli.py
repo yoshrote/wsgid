@@ -36,9 +36,6 @@ class Cli(object):
     self.options = options # Will be used by the signal handlers
     try:
       daemon_options = self._create_daemon_options(options)
-      #if not options.nodaemon:
-      #  files_preserve = self._set_loggers(options)
-      #  daemon_options['files_preserve'] = [files_preserve]
       ctx = daemon.DaemonContext(**daemon_options)
 
       with ctx:

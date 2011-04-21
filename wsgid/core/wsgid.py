@@ -8,7 +8,6 @@ from StringIO import StringIO
 class Wsgid(object):
   
   def __init__(self, app = None, recv = None, send = None):
-    self.environ = {}
     self.app = app
     self.recv = recv
     self.send = send
@@ -97,30 +96,31 @@ class Wsgid(object):
    @json_headers should be an already parsed JSON string
   '''
   def _create_wsgi_environ(self, json_headers, body=None):
+    environ = {}
     #Not needed
     json_headers.pop('URI', None)
     
     #First, some fixed values
-    self.environ['wsgi.multithread'] = False
-    self.environ['wsgi.multiprocess'] = True
-    self.environ['wsgi.run_once'] = True
-    self.environ['wsgi.version'] = (1,0)
-    self._set(self.environ, 'wsgi.url_scheme', "http")
+    environ['wsgi.multithread'] = False
+    environ['wsgi.multiprocess'] = True
+    environ['wsgi.run_once'] = True
+    environ['wsgi.version'] = (1,0)
+    self._set(environ, 'wsgi.url_scheme', "http")
 
     if body:
-      self.environ['wsgi.input'] = StringIO(body)
+      environ['wsgi.input'] = StringIO(body)
     else:
-      self.environ['wsgi.input'] = StringIO('')
+      environ['wsgi.input'] = StringIO('')
 
 
-    self._set(self.environ, 'REQUEST_METHOD', json_headers.pop('METHOD'))
-    self._set(self.environ, 'SERVER_PROTOCOL', json_headers.pop('VERSION'))
-    self._set(self.environ, 'SCRIPT_NAME', json_headers.pop('PATTERN').rstrip('/'))
-    self._set(self.environ, 'QUERY_STRING', json_headers.pop('QUERY', ""))
+    self._set(environ, 'REQUEST_METHOD', json_headers.pop('METHOD'))
+    self._set(environ, 'SERVER_PROTOCOL', json_headers.pop('VERSION'))
+    self._set(environ, 'SCRIPT_NAME', json_headers.pop('PATTERN').rstrip('/'))
+    self._set(environ, 'QUERY_STRING', json_headers.pop('QUERY', ""))
 
-    script_name = self.environ['SCRIPT_NAME']
+    script_name = environ['SCRIPT_NAME']
     path_info = json_headers.pop('PATH')[len(script_name):]
-    self._set(self.environ, 'PATH_INFO', urllib.unquote(path_info))
+    self._set(environ, 'PATH_INFO', urllib.unquote(path_info))
 
     server_port = '80'
     host_header = json_headers.pop('host')
@@ -129,24 +129,26 @@ class Wsgid(object):
     else:
       server_name = host_header
 
-    self._set(self.environ, 'HTTP_HOST', host_header)
-    self._set(self.environ, 'SERVER_PORT', server_port)
-    self._set(self.environ, 'SERVER_NAME', server_name)
+    self._set(environ, 'HTTP_HOST', host_header)
+    self._set(environ, 'SERVER_PORT', server_port)
+    self._set(environ, 'SERVER_NAME', server_name)
+
+    self._set(environ, 'REMOTE_ADDR', json_headers['x-forwarded-for'])
     
-    self._set(self.environ, 'CONTENT_TYPE', json_headers.pop('content-type', ''))
-    self.environ['content-type'] = self.environ['CONTENT_TYPE']
+    self._set(environ, 'CONTENT_TYPE', json_headers.pop('content-type', ''))
+    environ['content-type'] = environ['CONTENT_TYPE']
     
-    self._set(self.environ, 'CONTENT_LENGTH', json_headers.pop('content-length', ''))
-    self.environ['content-length'] = self.environ['CONTENT_LENGTH']
+    self._set(environ, 'CONTENT_LENGTH', json_headers.pop('content-length', ''))
+    environ['content-length'] = environ['CONTENT_LENGTH']
 
     #Pass the other headers
     for (header, value) in json_headers.iteritems():
       if header[0] in ('X', 'x'):
-        self.environ[header] = str(value)
+        environ[header] = str(value)
       else:
-        self.environ['HTTP_%s' % header] = str(value)
+        environ['HTTP_%s' % header] = str(value)
 
-    return self.environ
+    return environ
 
   '''
    Sets a value in the environ object

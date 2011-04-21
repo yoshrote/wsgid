@@ -21,7 +21,8 @@ class WsgidTest(unittest.TestCase):
           'QUERY': 'a=1&b=4&d=4',
           'host': 'localhost',
           'content-length': '42',
-          'content-type': 'text/plain'
+          'content-type': 'text/plain',
+          'x-forwarded-for': '127.0.0.1'
         }
   def tearDown(self):
     self.sample_headers = {}
@@ -146,6 +147,11 @@ class WsgidTest(unittest.TestCase):
     self.assertEquals('HTTP/1.1', environ['SERVER_PROTOCOL'])
 
 
+  def test_eviron_remote_addr(self):
+    environ = self.wsgid._create_wsgi_environ(self.sample_headers)
+    self.assertEquals('127.0.0.1', environ['REMOTE_ADDR'])
+
+
   '''
    Non Standard headers (X-) are passed untouched
   '''
@@ -195,11 +201,12 @@ class WsgidTest(unittest.TestCase):
           'CUSTOM_HEADER': 'value',
           'User-Agent': 'some user agent/1.0',
           'content-length': '42',
-          'content-type': 'text/plain'
+          'content-type': 'text/plain',
+          'x-forwarded-for': '127.0.0.1'
         }
 
     environ = self.wsgid._create_wsgi_environ(request)
-    self.assertEquals(21, len(environ))
+    self.assertEquals(23, len(environ))
     self.assertEquals('GET', environ['REQUEST_METHOD'])
     self.assertEquals('HTTP/1.1', environ['SERVER_PROTOCOL'])
     self.assertEquals('/py', environ['SCRIPT_NAME'])
@@ -215,6 +222,7 @@ class WsgidTest(unittest.TestCase):
     self.assertEquals('text/plain', environ['CONTENT_TYPE'])
     self.assertEquals('text/plain', environ['content-type'])
     self.assertEquals('localhost', environ['HTTP_HOST'])
+    self.assertEquals('127.0.0.1', environ['REMOTE_ADDR'])
 
   '''
    Some values are fixed:
