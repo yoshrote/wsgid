@@ -10,8 +10,11 @@ import sys
 class DjangoAppLoader(Plugin):
   implements = [IAppLoader]
 
+  def _not_hidden_folder(self, name):
+    return not name.startswith('.')
+
   def can_load(self, app_path):
-    dirs = os.listdir(app_path)
+    dirs = filter(self._not_hidden_folder, os.listdir(app_path))
     return (len(dirs) == 1) and (os.path.exists(os.path.join(app_path, dirs[0], 'urls.py')))
 
   def load_app(self, app_path, app_full_name):
