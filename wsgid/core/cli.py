@@ -62,7 +62,7 @@ class Cli(object):
     except Exception, e:
       import traceback
       exc = sys.exc_info()
-      sys.stderr.write("".join(traceback.format_exception(exc[0], exc[1], exc[2])))
+      self.log.info("".join(traceback.format_exception(exc[0], exc[1], exc[2])))
       sys.exit(1)
 
 
