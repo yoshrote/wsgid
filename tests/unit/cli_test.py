@@ -99,4 +99,22 @@ class CliTest(unittest.TestCase):
     self.assertEquals(opts['uid'], stat.st_uid)
     self.assertEquals(opts['gid'], stat.st_gid)
 
+  '''
+    If we have a wsgid.json file inside app-path, so we must use it.
+  '''
+  def test_load_wsgid_json_file(self):
+    app_path = os.path.join('../', os.path.dirname(__file__), 'app-path')
+    # All we have to do is pass --app-path, so wsgfid ca find ${app-path}/wsgid.json
+    sys.argv[1:] = ['--app-path=%s' % app_path]
+    options = self.cli._parse_options()
+    self.assertEquals('tcp://127.0.0.1:5000', options.recv)
+    self.assertEquals('tcp://127.0.0.1:5001', options.send)
+    self.assertEquals(4, options.workers)
+    self.assertEquals(True, options.debug)
+    self.assertEquals(False, options.keep_alive)
 
+  def test_wsgid_json_overwrites_command_line(self):
+    app_path = os.path.join('../', os.path.dirname(__file__), 'app-path')
+    sys.argv[1:] = ['--app-path={0}'.format(app_path), '--workers=8']
+    options = self.cli._parse_options()
+    self.assertEquals(4, options.workers)

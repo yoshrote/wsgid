@@ -27,11 +27,11 @@ class Cli(object):
       raise Exception("Send socker is mandatory\n")
 
   def run(self):
-    options = parser.parse_args()
+    options = self._parse_options()
     self.validate_input_params(app_path=options.app_path,\
         recv=options.recv, send=options.send,\
         wsgi_app=options.wsgi_app)
-    options.app_path = self._full_path(options.app_path)
+
 
     self.options = options # Will be used by the signal handlers
     try:
@@ -44,6 +44,7 @@ class Cli(object):
         options.app_path = self._normalize_path(options)
         self._set_loggers(options)
 
+        self.log.debug("Using configs values {cfg}".format(cfg=options))
         self.log.debug("Dropping privileges to: uid=%s, gid=%s" % (daemon_options['uid'], daemon_options['gid']))
         self.log.info("Master process started")
         self._load_plugins(options)
@@ -63,6 +64,38 @@ class Cli(object):
       exc = sys.exc_info()
       sys.stderr.write("".join(traceback.format_exception(exc[0], exc[1], exc[2])))
       sys.exit(1)
+
+
+  def _parse_options(self):
+    options = parser.parse_args()
+    options.app_path = self._full_path(options.app_path)
+    
+    if options.app_path:
+      # Check the existence of app-path/wsgid.json, if yes use it
+      # instead of command line options
+      filepath = os.path.join(options.app_path, 'wsgid.json')
+      if os.path.exists(filepath):
+        try:
+          import simplejson as json
+        except:
+          # Fallback to python's built-in
+          import json
+        json_cfg = json.loads(file(filepath).read())
+
+        options.send = json_cfg.setdefault('send', options.send)
+        options.recv = json_cfg.setdefault('recv', options.recv)
+        options.debug = self._return_bool(json_cfg.setdefault('debug', options.debug))
+        options.workers = int(json_cfg.setdefault('workers', options.workers))
+        options.keep_alive = self._return_bool(json_cfg.setdefault('keep_alive', options.keep_alive))
+        options.wsgi_app = json_cfg.setdefault('wsgi_app', options.wsgi_app)
+
+    return options
+
+
+  def _return_bool(self, option):
+    if option and option.lower() == 'true':
+      return True
+    return False
 
   '''
     This is the SIGTERM handler of the master process.
@@ -138,7 +171,7 @@ class Cli(object):
     return options.app_path
 
   '''
-   Forks a new wsgid worker, return this pid of this worker
+   Forks a new wsgid worker, return the pid of this worker
   '''
   def _create_worker(self, options):
     pid = os.fork()
