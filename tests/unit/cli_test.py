@@ -112,6 +112,7 @@ class CliTest(unittest.TestCase):
     self.assertEquals(4, options.workers)
     self.assertEquals(True, options.debug)
     self.assertEquals(False, options.keep_alive)
+    self.assertEquals(False, options.chroot)
 
   def test_wsgid_json_overwrites_command_line(self):
     app_path = os.path.join('../', os.path.dirname(__file__), 'app-path')

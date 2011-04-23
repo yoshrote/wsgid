@@ -2,5 +2,6 @@
 "recv": "tcp://127.0.0.1:5000",
 "send": "tcp://127.0.0.1:5001",
 "debug": "true",
-"workers": "4"
+"workers": "4",
+"chroot": "false"
 }
