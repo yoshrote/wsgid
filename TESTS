@@ -7,6 +7,6 @@
  
  * Functional tests
    To be able do run functional tests you will need to start mongrel2. There is a ready configuration inside
-   tests/m2env. To start mongrel2 just run: tests/startm2.sh and then you will be able ro tuns the tests.
+   tests/m2env. To start mongrel2 just run: tests/startm2.sh and then you will be able to run the tests.
 
 Note: You will need mongrel2 >= 1.5
