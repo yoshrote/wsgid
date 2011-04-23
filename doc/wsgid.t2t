@@ -70,19 +70,26 @@ This option will make wsgid watch for its child processes. If any child process 
 : **--debug**
 Runs in debug mode. The logs will be more verbose with this option turned on.
 
-= APPLICATION PATH STRUCTURE =
-Path
 
+= APPLICATION CONFIGURATION =
 
-= PLUGGABLE APPLICATION LOADERS =
-
+wsgid is able to load config options from a config file. This file must be at the root of your app-path. The file name is //wsgid.json//. The internal format is just plain JSON. The only option that you can't use in the JSON config file is //--app-path//. All other options are the same, just remember to remove the //--// part and replace the **-** with **_**. So **--wsgi-app** becomes **wsgi_app**. An example of a //wsgid.json// follows:
+```
+{
+  "recv": "tcp://127.0.0.1:5000",
+  "send": "tcp://127.0.0.1:5001",
+  "debug": "true",
+  "workers": "1",
+  "keep_alive": "true"
+}
+```
 
 = AUTHORS =
 wsgid was written by Dalton Barreto <daltonmatos@gmail.com>
 
 = SEE ALSO =
 : **wsgid website**
-wsgid.com
+http://wsgid.com
 : **PEP-333 - Python Web Server Gateway Interface v1.0**
 http://www.python.org/dev/peps/pep-0333
 : **zeromq**

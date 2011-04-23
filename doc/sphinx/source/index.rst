@@ -10,4 +10,5 @@ WSGID official Docs, Welcome!
    tutorials
    internals
    contributing
+   changelog
 

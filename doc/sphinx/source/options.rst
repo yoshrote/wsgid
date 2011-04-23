@@ -16,7 +16,7 @@ wsgi-app
 ********
   --wsgi-app
 
-Full qualified name for the WSGI application object. This options is used in two main ocasions. One: When wsgid cannot load your app automatically just by looking at **--app-path**. Two: When yout app is installed system wide. Supose you have inside your app an package name *web*, and in this package you have a module named *frontends*. Supose *frontends/wsgi.py* is the module that defines the WSGI application object, as specified by PEP-333.::
+Full qualified name for the WSGI application object. This options is used in two main ocasions. One: When wsgid cannot load your app automatically just by looking at **--app-path**. Two: When yout app is installed system wide. Supose you have inside your app an package name *web*, and in this package you have a module named *frontends*. Supose *frontends/wsgi.py* is the module that defines the WSGI application object, as specified by PEP-333. ::
 
 
     myapp/
@@ -84,3 +84,24 @@ keep-alive
 
 This option will make wsgid watch for its child processes. If any child process dies a new process is created immediately.
 
+
+.. _json-config:
+
+Using the command line options inside a config file
+===================================================
+
+.. versionadded:: 0.2
+
+wsgid is able to load config options from a config file. This file must be at the root of your app-path. The file name is *wsgid.json*. The internal format is just plain JSON. The only option that you can't use in the JSON config file is *--app-path*. All other options are the same, just remember to remove the `--` part and replace the `-` with `_`. So *--wsgi-app* becomes *wsgi_app*. An example of a *wsgid.json* follows: ::
+
+  {
+    "recv": "tcp://127.0.0.1:5000",
+    "send": "tcp://127.0.0.1:5001",
+    "debug": "true",
+    "workers": "1",
+    "keep_alive": "true"
+  }
+
+Note that any options specified in the config file will overwrite the same options passed in the command line. It's now easier to start you app, as all you need is:
+
+  $ wsgid --app-path=/path/to/wsgid-app-folder/
