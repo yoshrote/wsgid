@@ -20,7 +20,7 @@ class Cli(object):
     if not app_path and not wsgi_app:
       raise Exception("--app-path is mandatory when --wsgi-app is not passed\n")
     if app_path and not self._full_path(app_path):
-      raise Exception("path %s does not exist.\n" % abs_path)
+      raise Exception("path {0} does not exist.\n".format(abs_path))
     if not recv:
       raise Exception("Recv socket is mandatory\n")
     if not send:
@@ -45,7 +45,7 @@ class Cli(object):
         self._set_loggers(options)
 
         self.log.debug("Using configs values {cfg}".format(cfg=options))
-        self.log.debug("Dropping privileges to: uid=%s, gid=%s" % (daemon_options['uid'], daemon_options['gid']))
+        self.log.debug("Dropping privileges to: uid={uid}, gid={gid}".format(uid=daemon_options['uid'], gid=daemon_options['gid']))
         self.log.info("Master process started")
         self._load_plugins(options)
 
@@ -103,9 +103,9 @@ class Cli(object):
   '''
   def _sigterm_handler(self, sig, stack):
     self.log.debug("SIGTERM received, killing any pending worker")
-    for w in self.workers:
-      self.log.debug("Killing worker pid=%s" % w)
-      os.kill(w, signal.SIGTERM)
+    for p in self.workers:
+      self.log.debug("Killing worker pid={pid}".format(pid=p))
+      os.kill(p, signal.SIGTERM)
     self.log.info("Exiting...")
     sys.exit(0)
 
@@ -113,10 +113,10 @@ class Cli(object):
     while True:
       dead_worker = os.wait()
       self.workers.remove(dead_worker[0])
-      self.log.info("Worker finished, pid=%s retval=%s" % dead_worker)
+      self.log.info("Worker finished, pid={pid} retval={retval}".format(pid=dead_worker[0], retval=dead_worker[1]))
       if self.options.keep_alive:
         self.workers.append(self._create_worker(self.options))
-        self.log.debug("Current active workers=%s" % self.workers)
+        self.log.debug("Current active workers={workers}".format(workers=self.workers))
       if not self.workers:
         self.log.debug("No more workers to wait for and no keep alive requested, exiting...")
         sys.exit(0)
@@ -181,7 +181,7 @@ class Cli(object):
       signal.signal(signal.SIGTERM, signal.SIG_DFL)
       self._call_wsgid(options)
 
-    self.log.info("New wsgid worker created pid=%s" % pid)
+    self.log.info("New wsgid worker created pid={pid}".format(pid=pid))
     return pid
 
   def _call_wsgid(self, options):
