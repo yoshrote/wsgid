@@ -89,7 +89,7 @@ class Cli(object):
         options.keep_alive = self._return_bool(json_cfg.setdefault('keep_alive', options.keep_alive))
         options.wsgi_app = json_cfg.setdefault('wsgi_app', options.wsgi_app)
         options.nodaemon = json_cfg.setdefault('nodaemon', options.nodaemon)
-        options.chrrot = self._return_bool(json_cfg.setdefault('chroot', options.chroot))
+        options.chroot = self._return_bool(json_cfg.setdefault('chroot', options.chroot))
 
     return options
 
