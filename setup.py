@@ -23,15 +23,3 @@ setup(
     "Topic :: Software Development :: Libraries :: Application Frameworks"
     ])
 
-
-if 'install' in sys.argv:
-  pwd = os.path.dirname(os.path.abspath(__file__))
-  man_path = '/usr/share/man/man8/'
-  if os.path.exists(man_path):
-    print "Installing man pages"
-    path = "%s/doc/wsgid.8.bz2" % pwd
-    input_file = file(path).read()
-    ouput_file = file(man_path + 'wsgid.8.bz2', 'wa')
-    ouput_file.write(input_file)
-
-
