@@ -17,6 +17,12 @@ class CliTest(unittest.TestCase):
     # As we are dealing with a command line test, we have do clean the passed arguments
     # so the tested applications does not try to use them
     sys.argv[1:] = []
+    self.fake_app_path = os.path.join('../', os.path.dirname(__file__), 'app-path')
+    
+    # Ok, not pretty but better than re-implementing this in python
+    os.system("rm -rf {0}".format(os.path.join(self.fake_app_path, 'pid/')))
+    self.cli.options = parser.parse_args()
+    self.cli.options.app_path = self.fake_app_path
 
   def test_nodaemon(self):
     opts = self._parse()
@@ -119,3 +125,40 @@ class CliTest(unittest.TestCase):
     sys.argv[1:] = ['--app-path={0}'.format(app_path), '--workers=8']
     options = self.cli._parse_options()
     self.assertEquals(4, options.workers)
+
+
+  def test_autocreate_pid_folder_structure(self):
+
+    pid_folder = os.path.join(self.fake_app_path, 'pid')
+    master_pid_folder = os.path.join(pid_folder, 'master')
+    worker_pid_folder = os.path.join(pid_folder, 'worker')
+    master_pid_file = os.path.join(master_pid_folder, '42.pid')
+    worker_pid_file = os.path.join(worker_pid_folder, '43.pid')
+
+    self.assertFalse(os.path.exists(pid_folder))
+    self.assertFalse(os.path.exists(master_pid_folder))
+    self.assertFalse(os.path.exists(worker_pid_folder))
+
+    self.cli._write_pid(42, self.cli.MASTER)
+    self.cli._write_pid(43, self.cli.WORKER)
+    
+    # Check we created all necessary paths
+    self.assertTrue(os.path.exists(pid_folder))
+    self.assertTrue(os.path.exists(master_pid_folder))
+    self.assertTrue(os.path.exists(worker_pid_folder))
+
+    self.assertTrue(os.path.exists(os.path.join(master_pid_folder, '42.pid')))
+    self.assertTrue(os.path.exists(os.path.join(worker_pid_folder, '43.pid')))
+
+    self.assertEquals("42", file(master_pid_file).read())
+    self.assertEquals("43", file(worker_pid_file).read())
+
+
+  def test_remove_pid(self):
+    self.cli._write_pid(42, self.cli.MASTER)
+    pid_file = os.path.join(self.fake_app_path, 'pid/master/42.pid')
+
+    self.cli._remove_pid(42, self.cli.MASTER)
+    self.assertFalse(os.path.exists(pid_file))
+
+

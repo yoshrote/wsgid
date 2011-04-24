@@ -12,6 +12,12 @@ import daemon
 import signal
 
 class Cli(object):
+  # PID types we may create
+  MASTER, WORKER = range(2)
+
+  def __init__(self):
+    self.log = get_main_logger()
+
   '''
    Command Line interface for wsgid
   '''
@@ -47,6 +53,8 @@ class Cli(object):
         self.log.debug("Using configs values {cfg}".format(cfg=options))
         self.log.debug("Dropping privileges to: uid={uid}, gid={gid}".format(uid=daemon_options['uid'], gid=daemon_options['gid']))
         self.log.info("Master process started")
+        self.log.debug("Creating master pid file at {0}".format(self._return_pid_file_path(os.getpid(), self.MASTER)))
+        self._write_pid(os.getpid(), self.MASTER)
         self._load_plugins(options)
 
         if options.nodaemon:
@@ -65,6 +73,38 @@ class Cli(object):
       self.log.info("".join(traceback.format_exception(exc[0], exc[1], exc[2])))
       sys.exit(1)
 
+  def _write_pid(self, pid, pid_type):
+    # Create the base pid folder
+    self._mkdir_if_not_exist(os.path.join(self.options.app_path, 'pid'))
+
+    pid_folder = self._return_pid_folder(pid_type)
+    self._mkdir_if_not_exist(pid_folder)
+
+    pid_file_path = self._return_pid_file_path(pid, pid_type)
+    pid_file = file(pid_file_path, 'w')
+    self.log.debug("Creating pid file at {0}".format(pid_file_path))
+    pid_file.write(str(pid))
+    pid_file.close()
+
+  def _return_pid_file_path(self, pid, pid_type):
+    return os.path.join(self._return_pid_folder(pid_type), '{0}.pid'.format(pid))
+
+  def _remove_pid(self, pid, pid_type):
+    pid_file = self._return_pid_file_path(pid, pid_type)
+    self.log.debug("Removing pid file at {0}".format(pid_file))
+    os.unlink(pid_file)
+
+  def _return_pid_folder(self, pid_type):
+
+    pid_folders = {
+        self.MASTER: os.path.join(self.options.app_path, 'pid/master'),
+        self.WORKER: os.path.join(self.options.app_path, 'pid/worker')
+        }
+    return pid_folders[pid_type]
+
+  def _mkdir_if_not_exist(self, path):
+    if not os.path.exists(path):
+      os.mkdir(path, 0700)
 
   def _parse_options(self):
     options = parser.parse_args()
@@ -84,7 +124,7 @@ class Cli(object):
 
         options.send = self._return_str(json_cfg.setdefault('send', options.send))
         options.recv = self._return_str(json_cfg.setdefault('recv', options.recv))
-        options.debug = self._return_str(self._return_bool(json_cfg.setdefault('debug', options.debug)))
+        options.debug = self._return_bool(json_cfg.setdefault('debug', options.debug))
         options.workers = int(json_cfg.setdefault('workers', options.workers))
         options.keep_alive = self._return_bool(json_cfg.setdefault('keep_alive', options.keep_alive))
         options.wsgi_app = self._return_str(json_cfg.setdefault('wsgi_app', options.wsgi_app))
@@ -113,7 +153,9 @@ class Cli(object):
     for p in self.workers:
       self.log.debug("Killing worker pid={pid}".format(pid=p))
       os.kill(p, signal.SIGTERM)
+      self._remove_pid(p, self.WORKER)
     self.log.info("Exiting...")
+    self._remove_pid(os.getpid(), self.MASTER)
     sys.exit(0)
 
   def _wait_workers(self):
@@ -121,11 +163,15 @@ class Cli(object):
       dead_worker = os.wait()
       self.workers.remove(dead_worker[0])
       self.log.info("Worker finished, pid={pid} retval={retval}".format(pid=dead_worker[0], retval=dead_worker[1]))
+      self._remove_pid(dead_worker[0], self.WORKER)
+
       if self.options.keep_alive:
-        self.workers.append(self._create_worker(self.options))
+        new_worker = self._create_worker(self.options)
+        self.workers.append(new_worker)
         self.log.debug("Current active workers={workers}".format(workers=self.workers))
       if not self.workers:
         self.log.debug("No more workers to wait for and no keep alive requested, exiting...")
+        self._remove_pid(os.getpid(), self.MASTER)
         sys.exit(0)
 
   def _load_plugins(self, options):
@@ -189,6 +235,7 @@ class Cli(object):
       self._call_wsgid(options)
 
     self.log.info("New wsgid worker created pid={pid}".format(pid=pid))
+    self._write_pid(pid, self.WORKER)
     return pid
 
   def _call_wsgid(self, options):
