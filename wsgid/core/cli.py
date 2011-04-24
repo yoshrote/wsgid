@@ -82,13 +82,13 @@ class Cli(object):
           import json
         json_cfg = json.loads(file(filepath).read())
 
-        options.send = json_cfg.setdefault('send', options.send)
-        options.recv = json_cfg.setdefault('recv', options.recv)
-        options.debug = self._return_bool(json_cfg.setdefault('debug', options.debug))
+        options.send = self._return_str(json_cfg.setdefault('send', options.send))
+        options.recv = self._return_str(json_cfg.setdefault('recv', options.recv))
+        options.debug = self._return_str(self._return_bool(json_cfg.setdefault('debug', options.debug)))
         options.workers = int(json_cfg.setdefault('workers', options.workers))
         options.keep_alive = self._return_bool(json_cfg.setdefault('keep_alive', options.keep_alive))
-        options.wsgi_app = json_cfg.setdefault('wsgi_app', options.wsgi_app)
-        options.nodaemon = json_cfg.setdefault('nodaemon', options.nodaemon)
+        options.wsgi_app = self._return_str(json_cfg.setdefault('wsgi_app', options.wsgi_app))
+        options.nodaemon = self._return_str(json_cfg.setdefault('nodaemon', options.nodaemon))
         options.chroot = self._return_bool(json_cfg.setdefault('chroot', options.chroot))
 
     return options
@@ -98,6 +98,11 @@ class Cli(object):
     if option and option.lower() == 'true':
       return True
     return False
+
+  def _return_str(self, option):
+    if option:
+      return str(option)
+    return option
 
   '''
     This is the SIGTERM handler of the master process.
