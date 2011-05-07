@@ -20,6 +20,7 @@ If your app resides inside a python module (typically a django app) this same mo
 
 In this example the value that should be passed to *--app-path* option is */var/apps/myapp*. More details, see :doc:`options`.
 
+.. _pid-folder:
 
 The pid folder
 **************

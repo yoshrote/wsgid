@@ -10,6 +10,7 @@ Version 0.1
 Version 0.2
 ***********
 
+  * Wsgid now creates pidfiles for all started processes. Master and workers. See :ref:`pid-folder`;
   * Bugfix: DjangoAppLoader now disconsiders hiddend folders inside ${app-path}/app;
   * Bugfix: Create each request with a fresh environ. Wsgid was keeping values between different requests;
   * Support for REMOTE_ADDR;
