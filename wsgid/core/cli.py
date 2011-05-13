@@ -130,6 +130,7 @@ class Cli(object):
         options.wsgi_app = self._return_str(json_cfg.setdefault('wsgi_app', options.wsgi_app))
         options.nodaemon = self._return_str(json_cfg.setdefault('nodaemon', options.nodaemon))
         options.chroot = self._return_bool(json_cfg.setdefault('chroot', options.chroot))
+        options.envs = json_cfg.setdefault('envs', {})
 
     return options
 
@@ -241,6 +242,12 @@ class Cli(object):
   def _call_wsgid(self, options):
     from wsgid import Wsgid
     from ..loaders import load_app
+
+    # Create the env vars
+    if options.envs:
+      for k, v in options.envs.iteritems():
+        os.environ[k] = v
+
     # The app source-code is inside an "app" folder, so we join this part
     # here and pass it to the AppLoaders.
     wsgi_app = load_app(os.path.join(options.app_path, 'app'), options.wsgi_app)

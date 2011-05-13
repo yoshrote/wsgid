@@ -3,5 +3,8 @@
 "send": "tcp://127.0.0.1:5001",
 "debug": "true",
 "workers": "4",
-"chroot": "false"
+"chroot": "false",
+"envs":
+    {"ENV1": "VALUE1",
+     "ENV2": "VALUE2"}
 }

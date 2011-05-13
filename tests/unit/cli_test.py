@@ -120,6 +120,8 @@ class CliTest(unittest.TestCase):
     self.assertEquals(False, options.keep_alive)
     self.assertEquals(False, options.chroot)
 
+    self.assertEquals({'ENV1': 'VALUE1', 'ENV2': 'VALUE2'}, options.envs)
+
   def test_wsgid_json_overwrites_command_line(self):
     app_path = os.path.join('../', os.path.dirname(__file__), 'app-path')
     sys.argv[1:] = ['--app-path={0}'.format(app_path), '--workers=8']
