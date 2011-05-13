@@ -105,3 +105,26 @@ wsgid is able to load config options from a config file. This file must be at th
 Note that any options specified in the config file will overwrite the same options passed in the command line. It's now easier to start you app, as all you need is:
 
   $ wsgid --app-path=/path/to/wsgid-app-folder/
+
+Addindg Environment Variables to your App
+*****************************************
+
+.. versionadded:: 0.2.1
+
+Now it is possible to create environ variables that will be available to your WSGI app. To do this you need to use one more options inside the config file. The new options is named `envs`. This is actually a JSON hash. Each key-value pair represents one Env Var that will be created by wsgid, when loading your app, eg: ::
+
+  {
+    "recv": "tcp://127.0.0.1:5000",
+    "send": "tcp://127.0.0.1:5001",
+    "debug": "true",
+    "workers": "1",
+    "keep_alive": "true",
+    "envs": {
+            "ENV1": "VALUE1",
+            "ENV2": "VALUE2"
+          }
+  }
+
+
+This will create two environ variables that your app will be able to read using `os.environ['ENV1']` and `os.environ['ENV2']`.
+
